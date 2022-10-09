@@ -96,6 +96,60 @@ CropBoxFilterComponent::CropBoxFilterComponent(const rclcpp::NodeOptions & optio
   }
 }
 
+void CropBoxFilterComponent::faster_filter(const PointCloud2ConstPtr &input, PointCloud2 &output, const Eigen::Matrix4f &eigen_transform, bool need_transform) {
+  int x_offset = input->fields[pcl::getFieldIndex(*input, "x")].offset;
+  int y_offset = input->fields[pcl::getFieldIndex(*input, "y")].offset;
+  int z_offset = input->fields[pcl::getFieldIndex(*input, "z")].offset;
+
+  std::scoped_lock lock(mutex_);
+  stop_watch_ptr_->toc("processing_time", true);
+
+  size_t output_size = 0;
+
+  for (size_t global_offset = 0; global_offset + input->point_step < input->data.size(); global_offset += input->point_step) {
+    Eigen::Vector4f point(*reinterpret_cast<const float *>(&input->data[global_offset + x_offset]),
+        *reinterpret_cast<const float *>(&input->data[global_offset + y_offset]),
+        *reinterpret_cast<const float *>(&input->data[global_offset + z_offset]), 1);
+
+    if (need_transform) {
+      if (std::isfinite(point[0]) && std::isfinite(point[1]) && std::isfinite(point[2])) {
+        point = eigen_transform * point;
+      } else {
+        // TODO: Implement case for invalid point (refer to pcl_ros::transformPointCloud)
+        //  } else if (distance_ptr == NULL || std::isfinite(*distance_ptr)) {
+
+        // TODO: Implement case for max range point (refer to pcl_ros::transformPointCloud)
+        RCLCPP_ERROR(get_logger(), "Not implemented: case for invalid point or max range point");
+      }
+    }
+
+    bool point_is_inside = point[2] > param_.min_z && point[2] < param_.max_z && point[1] > param_.min_y && point[1] < param_.max_y
+      && point[0] > param_.min_x && point[0] < param_.max_x;
+    if ((!param_.negative && point_is_inside) || (param_.negative && !point_is_inside)) {
+      memcpy(&output.data[output_size], &input->data[global_offset], input->point_step);
+      output_size += input->point_step;
+    }
+  }
+
+  output.data.resize(output_size);
+  output.header.frame_id = input->header.frame_id;
+  output.height = 1;
+  output.fields = input->fields;
+  output.is_bigendian = input->is_bigendian;
+  output.point_step = input->point_step;
+  output.is_dense = input->is_dense;
+  output.width = static_cast<uint32_t>(output.data.size() / output.height / output.point_step);
+  output.row_step = static_cast<uint32_t>(output.data.size() / output.height);
+
+  publishCropBoxPolygon();
+
+  /* TODO: Implement case for debug
+  if (debug_publisher_) {
+  }
+  */
+}
+
+
 void CropBoxFilterComponent::filter(
   const PointCloud2ConstPtr & input, [[maybe_unused]] const IndicesPtr & indices,
   PointCloud2 & output)

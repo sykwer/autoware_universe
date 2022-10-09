@@ -69,6 +69,9 @@ protected:
   virtual void filter(
     const PointCloud2ConstPtr & input, const IndicesPtr & indices, PointCloud2 & output);
 
+  virtual void faster_filter(
+    const PointCloud2ConstPtr &input, PointCloud2 &output, const Eigen::Matrix4f &eigen_transform, bool need_transform);
+
   void publishCropBoxPolygon();
 
 private:

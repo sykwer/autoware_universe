@@ -111,6 +111,16 @@ void pointcloud_preprocessor::Filter::setupTF()
   tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
 }
 
+
+void pointcloud_preprocessor::Filter::faster_filter(
+    const PointCloud2ConstPtr &input, PointCloud2 &output, const Eigen::Matrix4f &eigen_transform, bool need_transform) {
+  (void) input;
+  (void) output;
+  (void) eigen_transform;
+  (void) need_transform;
+}
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void pointcloud_preprocessor::Filter::subscribe()
 {
@@ -125,18 +135,18 @@ void pointcloud_preprocessor::Filter::subscribe()
       sync_input_indices_a_ = std::make_shared<ApproximateTimeSyncPolicy>(max_queue_size_);
       sync_input_indices_a_->connectInput(sub_input_filter_, sub_indices_filter_);
       sync_input_indices_a_->registerCallback(std::bind(
-        &Filter::input_indices_callback, this, std::placeholders::_1, std::placeholders::_2));
+        &Filter::faster_callback, this, std::placeholders::_1, std::placeholders::_2));
     } else {
       sync_input_indices_e_ = std::make_shared<ExactTimeSyncPolicy>(max_queue_size_);
       sync_input_indices_e_->connectInput(sub_input_filter_, sub_indices_filter_);
       sync_input_indices_e_->registerCallback(std::bind(
-        &Filter::input_indices_callback, this, std::placeholders::_1, std::placeholders::_2));
+        &Filter::faster_callback, this, std::placeholders::_1, std::placeholders::_2));
     }
   } else {
     // Subscribe in an old fashion to input only (no filters)
     // CAN'T use auto-type here.
     std::function<void(const PointCloud2ConstPtr msg)> cb = std::bind(
-      &Filter::input_indices_callback, this, std::placeholders::_1, PointIndicesConstPtr());
+      &Filter::faster_callback, this, std::placeholders::_1, PointIndicesConstPtr());
     sub_input_ = create_subscription<PointCloud2>(
       "input", rclcpp::SensorDataQoS().keep_last(max_queue_size_), cb);
   }
@@ -227,6 +237,81 @@ rcl_interfaces::msg::SetParametersResult pointcloud_preprocessor::Filter::filter
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
+static bool getTransformMatrix(const std::string target_frame, const sensor_msgs::msg::PointCloud2 &from,
+    const tf2_ros::Buffer &tf_buffer, Eigen::Matrix4f &eigen_transform /*output*/) {
+  if (from.header.frame_id == target_frame) {
+    eigen_transform = Eigen::Matrix4f::Identity(4, 4);
+    return true;
+  }
+
+  geometry_msgs::msg::TransformStamped transform;
+
+  try {
+    transform = tf_buffer.lookupTransform(target_frame, from.header.frame_id, tf2_ros::fromMsg(from.header.stamp));
+  } catch (tf2::LookupException &e) {
+    RCLCPP_ERROR(rclcpp::get_logger("pcl_ros"), "%s", e.what());
+    return false;
+  } catch (tf2::ExtrapolationException &e) {
+    RCLCPP_ERROR(rclcpp::get_logger("pcl_ros"), "%s", e.what());
+    return false;
+  }
+
+  pcl_ros::transformAsMatrix(transform, eigen_transform);
+  return true;
+}
+
+/*
+void pointcloud_preprocessor::Filter::tmp_callback(const PointCloud2ConstPtr cloud, const PointIndicesConstPtr indices) {
+  RCLCPP_WARN(get_logger(), "tmp_callback called");
+  auto orig_output = std::make_unique<PointCloud2>();
+  auto faster_output = std::make_unique<PointCloud2>();
+
+  faster_callback(cloud, indices, faster_output);
+  input_indices_callback(cloud, indices, orig_output);
+
+  size_t faster_size = faster_output->data.size();
+  size_t orig_size = orig_output->data.size();
+
+  if (faster_size == orig_size) {
+    RCLCPP_WARN(get_logger(), "faster_size == orig_size (%ld)", faster_size);
+  } else {
+    RCLCPP_WARN(get_logger(), "faster_size=%ld, orig_size=%ld", faster_size, orig_size);
+  }
+}
+*/
+
+void pointcloud_preprocessor::Filter::faster_callback(const PointCloud2ConstPtr cloud, const PointIndicesConstPtr indices) {
+  (void) indices;
+
+  auto output = std::make_unique<PointCloud2>();
+  output->data.resize(cloud->data.size());
+
+  Eigen::Matrix4f eigen_transform;
+  bool need_transform = false;
+  if (!tf_input_frame_.empty() && cloud->header.frame_id != tf_input_frame_) {
+    if (!tf_buffer_->canTransform(tf_input_frame_, cloud->header.frame_id, this->now(), rclcpp::Duration::from_seconds(1.0))) {
+      RCLCPP_ERROR_STREAM(this->get_logger(), "[input_indices_callback] timeout tf: " << cloud->header.frame_id);
+      return;
+    }
+
+    if (!getTransformMatrix(tf_input_frame_, *cloud, *tf_buffer_, eigen_transform)) {
+      RCLCPP_ERROR(this->get_logger(), "[input_indices_callback] Error converting input dataset from %s to %s.",
+        cloud->header.frame_id.c_str(), tf_input_frame_.c_str());
+    }
+
+    need_transform = true;
+  }
+
+  faster_filter(cloud, *output, eigen_transform, need_transform);
+
+  /*
+   * TODO: Implement frame transformation
+   */
+
+  output->header.stamp = cloud->header.stamp;
+  pub_output_->publish(std::move(output));
+}
+
 void pointcloud_preprocessor::Filter::input_indices_callback(
   const PointCloud2ConstPtr cloud, const PointIndicesConstPtr indices)
 {

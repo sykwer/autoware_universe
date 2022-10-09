@@ -185,6 +185,9 @@ protected:
   virtual void filter(
     const PointCloud2ConstPtr & input, const IndicesPtr & indices, PointCloud2 & output) = 0;
 
+  virtual void faster_filter(
+    const PointCloud2ConstPtr &input, PointCloud2 &output, const Eigen::Matrix4f &eigen_transform, bool need_transform);
+
   /** \brief Lazy transport subscribe routine. */
   virtual void subscribe();
 
@@ -271,6 +274,8 @@ private:
 
   /** \brief PointCloud2 + Indices data callback. */
   void input_indices_callback(const PointCloud2ConstPtr cloud, const PointIndicesConstPtr indices);
+
+  void faster_callback(const PointCloud2ConstPtr cloud, const PointIndicesConstPtr indices);
 
   void setupTF();
 };
