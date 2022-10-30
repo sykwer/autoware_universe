@@ -24,6 +24,9 @@
 
 namespace pointcloud_preprocessor
 {
+template <typename T> class MyAllocator;
+template <typename T> class MemPool;
+
 using autoware_point_types::PointXYZI;
 using autoware_point_types::PointXYZIRADRT;
 using point_cloud_msg_wrapper::PointCloud2Modifier;
@@ -34,7 +37,10 @@ protected:
   virtual void filter(
     const PointCloud2ConstPtr & input, const IndicesPtr & indices, PointCloud2 & output);
 
+  virtual void faster_filter(const PointCloud2ConstPtr &input, PointCloud2 &output, const Eigen::Matrix4f &eigen_transform, bool need_transform);
 private:
+  std::unique_ptr<MemPool<std::size_t>> mp_;
+
   double distance_ratio_;
   double object_length_threshold_;
   int num_points_threshold_;
@@ -58,6 +64,15 @@ private:
     return static_cast<int>(tmp_indices.size()) > num_points_threshold_ ||
            (x_diff * x_diff) + (y_diff * y_diff) + (z_diff * z_diff) >=
              object_length_threshold_ * object_length_threshold_;
+  }
+
+  bool isCluster(const PointCloud2ConstPtr &input, int first_data_idx, int last_data_idx, int walk_size) {
+    const PointXYZI *first_point = reinterpret_cast<const PointXYZI *>(&input->data[first_data_idx]);
+    const PointXYZI *last_point = reinterpret_cast<const PointXYZI *>(&input->data[last_data_idx]);
+    const auto x = first_point->x - last_point->x;
+    const auto y = first_point->y - last_point->y;
+    const auto z = first_point->z - last_point->z;
+    return static_cast<int>(walk_size > num_points_threshold_ || x*x + y*y + z*z >= object_length_threshold_ * object_length_threshold_);
   }
 
 public:

@@ -16,11 +16,91 @@
 
 #include <algorithm>
 #include <vector>
+#include <iostream>
+#include <sys/mman.h>
+
 namespace pointcloud_preprocessor
 {
+
+const size_t CHUNK_SIZE = 2050; // >=2048
+const size_t CHUNKS_NUM = 130; // >= 128
+
+template <typename T>
+class MyAllocator {
+public:
+  using value_type = T;
+
+  value_type *addr;
+  size_t size;
+
+  MyAllocator(value_type *addr, size_t sz) : addr(addr), size(sz) {}
+
+  template <class U>
+  MyAllocator(const MyAllocator<U>& other) : addr(other.addr), size(other.size) {}
+
+  value_type* allocate(size_t n) {
+    if (n > size) {
+      std::cerr << "trying to allocate more than the pre-allocated memory pool size: n=" << n << ", size=" << size << std::endl;
+      return NULL;
+    }
+
+    return addr;
+  }
+
+  void deallocate(value_type* p, size_t n) {
+    (void) p;
+    (void) n;
+  }
+};
+
+template <typename T>
+class MemPool {
+public:
+  MemPool(size_t chunk_size, size_t chunks_num) : chunk_size_(chunk_size), chunks_num_(chunks_num) {
+    chunks_.reserve(chunks_num);
+    void *addr = mmap(NULL, chunk_size_ * sizeof(T) * chunks_num_, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    T *tp = (T*) addr;
+
+    // memory touch (fill page table entry)
+    for (size_t i = 0; i < chunk_size_ * chunks_num_; i++) {
+      volatile T *tmp = tp + i;
+      *tmp = 0;
+    }
+
+    for (size_t i = 0; i < chunks_num_; i++) {
+      chunks_.emplace_back(tp, chunk_size_);
+      tp += chunk_size_;
+    }
+  }
+
+  ~MemPool() {
+    munmap(chunks_.begin()->first, chunk_size_ * sizeof(T) * chunks_num_);
+    chunks_.clear();
+  }
+
+  void push(T* tp, size_t chunk_size) {
+    chunks_.emplace_back(tp, chunk_size);
+  }
+
+  std::pair<T*, size_t> pop() {
+    if (chunks_.size() == 0) return std::make_pair((T*) NULL, (size_t) 0);
+    std::pair<T*, size_t> ret = chunks_.back();
+    chunks_.pop_back();
+    return ret;
+  }
+
+private:
+  size_t chunk_size_;
+  size_t chunks_num_;
+  std::vector<std::pair<T*, size_t>> chunks_; // <addr, size>
+};
+
+
 RingOutlierFilterComponent::RingOutlierFilterComponent(const rclcpp::NodeOptions & options)
 : Filter("RingOutlierFilter", options)
 {
+  mp_ = std::make_unique<MemPool<std::size_t>>(CHUNK_SIZE, CHUNKS_NUM);
+
   // initialize debug tool
   {
     using tier4_autoware_utils::DebugPublisher;
@@ -42,6 +122,99 @@ RingOutlierFilterComponent::RingOutlierFilterComponent(const rclcpp::NodeOptions
   using std::placeholders::_1;
   set_param_res_ = this->add_on_set_parameters_callback(
     std::bind(&RingOutlierFilterComponent::paramCallback, this, _1));
+}
+
+void RingOutlierFilterComponent::faster_filter(const PointCloud2ConstPtr &input, PointCloud2 &output, const Eigen::Matrix4f &eigen_transform, bool need_transform) {
+  // TODO: Implement conversion between frames
+  (void) eigen_transform;
+  (void) need_transform;
+
+  std::scoped_lock lock(mutex_);
+  stop_watch_ptr_->toc("processing_time", true);
+
+  std::size_t output_size = 0;
+  output.point_step = sizeof(PointXYZI);
+
+  const auto ring_offset = input->fields[static_cast<size_t>(autoware_point_types::PointIndex::Ring)].offset;
+  const auto azimuth_offset = input->fields[static_cast<size_t>(autoware_point_types::PointIndex::Azimuth)].offset;
+  const auto distance_offset = input->fields[static_cast<size_t>(autoware_point_types::PointIndex::Distance)].offset;
+
+  std::vector<std::vector<std::size_t, MyAllocator<std::size_t>>> ring2indices;
+  ring2indices.reserve(128);
+  for (int i = 0; i < 128; i++) {
+    size_t *addr, chunk_size;
+    std::tie(addr, chunk_size) = mp_->pop();
+    MyAllocator<std::size_t> alloc(addr, chunk_size);
+    ring2indices.push_back(std::vector<std::size_t, MyAllocator<std::size_t>>(alloc));
+    ring2indices.back().reserve(2000);
+  }
+
+  for (std::size_t data_idx = 0U; data_idx < input->data.size(); data_idx += input->point_step) {
+    const uint16_t ring = *reinterpret_cast<const uint16_t*>(&input->data[data_idx + ring_offset]);
+    ring2indices[ring].push_back(data_idx);
+  }
+
+  // walk range: [walk_first_i, walk_last_i]
+  int walk_first_i = 0;
+  int walk_last_i = -1;
+
+  for (const auto &indices : ring2indices) {
+    if (indices.size() < 2) continue;
+    walk_first_i = 0;
+
+    for (std::size_t i = 0U; i < indices.size() - 1; i++) {
+      const std::size_t &current_data_idx = indices[i];
+      const std::size_t &next_data_idx = indices[i + 1];
+      walk_last_i = i;
+
+      const float &current_azimuth = *reinterpret_cast<const float*>(&input->data[current_data_idx + azimuth_offset]);
+      const float &next_azimuth = *reinterpret_cast<const float*>(&input->data[next_data_idx + azimuth_offset]);
+      float azimuth_diff = next_azimuth - current_azimuth;
+      azimuth_diff = azimuth_diff < 0.f ? azimuth_diff + 36000.f : azimuth_diff;
+
+      const float &current_distance = *reinterpret_cast<const float*>(&input->data[current_data_idx + distance_offset]);
+      const float &next_distance = *reinterpret_cast<const float*>(&input->data[next_data_idx + distance_offset]);
+      if (std::max(current_distance, next_distance) < std::min(current_distance, next_distance) * distance_ratio_ && azimuth_diff < 100.f) {
+        continue; // Determined to be included in the same walk
+      }
+
+      if (isCluster(input, indices[walk_first_i], indices[walk_last_i], walk_last_i - walk_first_i + 1)) {
+        for (int i = walk_first_i; i <= walk_last_i; i++) {
+          PointXYZI *output_ptr = reinterpret_cast<PointXYZI*>(&output.data[output_size]);
+          *output_ptr = *reinterpret_cast<const PointXYZI*>(&input->data[indices[i]]);
+          output_size += output.point_step;
+        }
+      }
+
+      walk_first_i = i + 1;
+    }
+
+    if (walk_first_i > walk_last_i) continue;
+
+    if (isCluster(input, indices[walk_first_i], indices[walk_last_i], walk_last_i - walk_first_i + 1)) {
+      for (int i = walk_first_i; i <= walk_last_i; i++) {
+        PointXYZI *output_ptr = reinterpret_cast<PointXYZI*>(&output.data[output_size]);
+        *output_ptr = *reinterpret_cast<const PointXYZI*>(&input->data[indices[i]]);
+        output_size += output.point_step;
+      }
+    }
+  }
+
+  for (auto it = ring2indices.begin(); it != ring2indices.end(); it++) {
+    auto alloc = it->get_allocator();
+    mp_->push(alloc.addr, alloc.size);
+  }
+
+  output.data.resize(output_size);
+  output.header.frame_id =input->header.frame_id;
+  output.height = 1;
+  output.fields = input->fields;
+  output.is_bigendian = input->is_bigendian;
+  output.is_dense = input->is_dense;
+  output.width = static_cast<uint32_t>(output.data.size() / output.height / output.point_step);
+  output.row_step = static_cast<uint32_t>(output.data.size() / output.height);
+
+  // debug publisher here
 }
 
 void RingOutlierFilterComponent::filter(
