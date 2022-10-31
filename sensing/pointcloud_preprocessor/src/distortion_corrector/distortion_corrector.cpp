@@ -24,6 +24,8 @@ namespace pointcloud_preprocessor
 DistortionCorrectorComponent::DistortionCorrectorComponent(const rclcpp::NodeOptions & options)
 : Node("distortion_corrector_node", options)
 {
+  prepare_sincos();
+
   // initialize debug tool
   {
     using tier4_autoware_utils::DebugPublisher;
@@ -266,10 +268,10 @@ bool DistortionCorrectorComponent::undistortPointCloud(
     point.setValue(*it_x, *it_y, *it_z);
 
     theta += w * time_offset;
-    quat.setRPY(0.0, 0.0, theta);
+    quat.setValue(0, 0, cached_sin(theta * 0.5f), cached_cos(theta * 0.5f)); // quat.setRPY(0.0, 0.0, theta);
     const float dis = v * time_offset;
-    x += dis * std::cos(theta);
-    y += dis * std::sin(theta);
+    x += dis * cached_cos(theta);
+    y += dis * cached_sin(theta);
 
     origin.setValue(x, y, 0.0);
     odom.setOrigin(origin);
