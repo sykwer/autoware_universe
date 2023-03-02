@@ -8,20 +8,20 @@
       
       
       
-        <link rel="canonical" href="https://autowarefoundation.github.io/autoware.universe/latest/planning/behavior_path_planner/behavior_path_planner_path_generation/">
+        <link rel="canonical" href="https://autowarefoundation.github.io/autoware.universe/latest/planning/behavior_path_planner/behavior_path_planner_limitations/">
       
       
-        <link rel="prev" href="../behavior_path_planner_lane_change/">
+        <link rel="prev" href="../behavior_path_planner_lane_change_design/">
       
       
-        <link rel="next" href="../behavior_path_planner_side-shift/">
+        <link rel="next" href="../behavior_path_planner_path_generation_design/">
       
       <link rel="icon" href="../../../docs/assets/images/autoware-foundation.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.14">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.15">
     
     
       
-        <title>Behavior path planner path generation - Autoware Universe Documentation</title>
+        <title>Limitations - Autoware Universe Documentation</title>
       
     
     
@@ -77,7 +77,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#path-generation" class="md-skip">
+        <a href="#limitations" class="md-skip">
           Skip to content
         </a>
       
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Behavior path planner path generation
+              Limitations
             
           </span>
         </div>
@@ -7374,8 +7374,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../behavior_path_planner_avoidance-design/" class="md-nav__link">
-        Avoidance Module
+      <a href="../behavior_path_planner_avoidance_design/" class="md-nav__link">
+        Avoidance design
       </a>
     </li>
   
@@ -7388,8 +7388,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../behavior_path_planner_design_limitations/" class="md-nav__link">
-        Design limitation
+      <a href="../behavior_path_planner_drivable_area_design/" class="md-nav__link">
+        Drivable Area design
       </a>
     </li>
   
@@ -7402,22 +7402,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../behavior_path_planner_drivable_area/" class="md-nav__link">
-        Drivable Area
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../behavior_path_planner_lane_change/" class="md-nav__link">
-        Lane Change
+      <a href="../behavior_path_planner_lane_change_design/" class="md-nav__link">
+        Lane Change design
       </a>
     </li>
   
@@ -7436,14 +7422,16 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
+        
+      
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
-          Behavior path planner path generation
+          Limitations
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        Behavior path planner path generation
+        Limitations
       </a>
       
         
@@ -7451,6 +7439,8 @@
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
+  
+    
   
   
     <label class="md-nav__title" for="__toc">
@@ -7460,63 +7450,23 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#path-generation" class="md-nav__link">
-    Path Generation
-  </a>
-  
-    <nav class="md-nav" aria-label="Path Generation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    Overview
+  <a href="#limitation-multiple-connected-opposite-lanes-require-linestring-with-shared-id" class="md-nav__link">
+    Limitation: Multiple connected opposite lanes require Linestring with shared ID
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#mathematical-derivation" class="md-nav__link">
-    Mathematical Derivation
-  </a>
-  
-    <nav class="md-nav" aria-label="Mathematical Derivation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#calculation-of-maximum-acceleration-from-transition-time-and-final-shift-length" class="md-nav__link">
-    Calculation of Maximum Acceleration from transition time and final shift length
+      
+        <li class="md-nav__item">
+  <a href="#limitation-avoidance-at-corners-and-intersections" class="md-nav__link">
+    Limitation: Avoidance at Corners and Intersections
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#calculation-of-ta-tj-and-jerk-from-acceleration-limit" class="md-nav__link">
-    Calculation of Ta, Tj and jerk from acceleration limit
+      
+        <li class="md-nav__item">
+  <a href="#limitation-chattering-shifts" class="md-nav__link">
+    Limitation: Chattering shifts
   </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#calculation-of-required-time-from-jerk-and-acceleration-constraint" class="md-nav__link">
-    Calculation of Required Time from Jerk and Acceleration Constraint
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#limitation" class="md-nav__link">
-    Limitation
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -7535,8 +7485,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../behavior_path_planner_side-shift/" class="md-nav__link">
-        Side shift Module
+      <a href="../behavior_path_planner_path_generation_design/" class="md-nav__link">
+        Path Generation design
       </a>
     </li>
   
@@ -7549,8 +7499,22 @@
   
   
     <li class="md-nav__item">
-      <a href="../behavior_path_planner_turn_signal-design/" class="md-nav__link">
-        Turn Signal Decider
+      <a href="../behavior_path_planner_side_shift_design/" class="md-nav__link">
+        Side Shift design
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../behavior_path_planner_turn_signal_design/" class="md-nav__link">
+        Turn Signal design
       </a>
     </li>
   
@@ -8188,10 +8152,82 @@
   
   
   
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+        
+      
+      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_12_9_2" >
+      
+      
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_12_9_2" id="__nav_12_9_2_label" tabindex="0">
+          Docs
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_12_9_2_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_12_9_2">
+          <span class="md-nav__icon md-icon"></span>
+          Docs
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
     <li class="md-nav__item">
-      <a href="../../obstacle_avoidance_planner/debug/" class="md-nav__link">
+      <a href="../../obstacle_avoidance_planner/docs/debug/" class="md-nav__link">
         Debug
       </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../obstacle_avoidance_planner/docs/eb/" class="md-nav__link">
+        Elastic band
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../obstacle_avoidance_planner/docs/mpt/" class="md-nav__link">
+        Model predictive trajectory
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
     </li>
   
 
@@ -11728,6 +11764,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -11736,63 +11774,23 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#path-generation" class="md-nav__link">
-    Path Generation
-  </a>
-  
-    <nav class="md-nav" aria-label="Path Generation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    Overview
+  <a href="#limitation-multiple-connected-opposite-lanes-require-linestring-with-shared-id" class="md-nav__link">
+    Limitation: Multiple connected opposite lanes require Linestring with shared ID
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#mathematical-derivation" class="md-nav__link">
-    Mathematical Derivation
-  </a>
-  
-    <nav class="md-nav" aria-label="Mathematical Derivation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#calculation-of-maximum-acceleration-from-transition-time-and-final-shift-length" class="md-nav__link">
-    Calculation of Maximum Acceleration from transition time and final shift length
+      
+        <li class="md-nav__item">
+  <a href="#limitation-avoidance-at-corners-and-intersections" class="md-nav__link">
+    Limitation: Avoidance at Corners and Intersections
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#calculation-of-ta-tj-and-jerk-from-acceleration-limit" class="md-nav__link">
-    Calculation of Ta, Tj and jerk from acceleration limit
+      
+        <li class="md-nav__item">
+  <a href="#limitation-chattering-shifts" class="md-nav__link">
+    Limitation: Chattering shifts
   </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#calculation-of-required-time-from-jerk-and-acceleration-constraint" class="md-nav__link">
-    Calculation of Required Time from Jerk and Acceleration Constraint
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#limitation" class="md-nav__link">
-    Limitation
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -11814,72 +11812,39 @@
   
 
 
-  <h1>Behavior path planner path generation</h1>
-
-<h2 id="path-generation">Path Generation<a class="headerlink" href="#path-generation" title="Permanent link">#</a></h2>
-<p>This document explains how the path is generated for lane change and avoidance, etc. The implementation can be found in <a href="https://github.com/autowarefoundation/autoware.universe/blob/main/planning/behavior_path_planner/include/behavior_path_planner/scene_module/utils/path_shifter.hpp">path_shifter.hpp</a>.</p>
-<h3 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">#</a></h3>
-<p>The base idea of the path generation in lane change and avoidance is to smoothly shift the reference path, such as the center line, in the lateral direction. This is achieved by using a constant-jerk profile as in the figure below. More details on how it is used can be found in <a href="https://github.com/autowarefoundation/autoware.universe/blob/main/planning/behavior_path_planner/README.md">README</a>. It is assumed that the reference path is smooth enough for this algorithm.</p>
-<p>The figure below explains how the application of a constant lateral jerk <span class="arithmatex"><span class="MathJax_Preview">l^{'''}(s)</span><script type="math/tex">l^{'''}(s)</script></span> can be used to induce lateral shifting. In order to comply with the limits on lateral acceleration and velocity, zero-jerk time is employed in the figure ( <span class="arithmatex"><span class="MathJax_Preview">T_a</span><script type="math/tex">T_a</script></span> and <span class="arithmatex"><span class="MathJax_Preview">T_v</span><script type="math/tex">T_v</script></span> ). In each interval where constant jerk is applied, the shift position <span class="arithmatex"><span class="MathJax_Preview">l(s)</span><script type="math/tex">l(s)</script></span> can be characterized by a third-degree polynomial. Therefore the shift length from the reference path can then be calculated by combining spline curves.</p>
-<p align="center">
-  <img src="./image/path_shifter.png" width="800">
-</p>
-
-<p>Note that, due to the rarity of the <span class="arithmatex"><span class="MathJax_Preview">T_v</span><script type="math/tex">T_v</script></span> in almost all cases of lane change and avoidance, <span class="arithmatex"><span class="MathJax_Preview">T_v</span><script type="math/tex">T_v</script></span> is not considered in the current implementation.</p>
-<h3 id="mathematical-derivation">Mathematical Derivation<a class="headerlink" href="#mathematical-derivation" title="Permanent link">#</a></h3>
-<p>By applying simple integral operations, the following analytical equations can be derived to describe the shift distance <span class="arithmatex"><span class="MathJax_Preview">l(t)</span><script type="math/tex">l(t)</script></span> at each time under lateral jerk, acceleration, and velocity constraints.</p>
-<div class="highlight"><pre><span></span><code>\begin{align}
-l_1&amp;= \frac{1}{6}jT_j^3\\[10pt]
-l_2&amp;= \frac{1}{6}j T_j^3 + \frac{1}{2} j T_a T_j^2 + \frac{1}{2} j T_a^2 T_j\\[10pt]
-l_3&amp;= j  T_j^3 + \frac{3}{2} j T_a T_j^2 + \frac{1}{2} j T_a^2 T_j\\[10pt]
-l_4&amp;= j T_j^3 + \frac{3}{2} j T_a T_j^2 + \frac{1}{2} j T_a^2 T_j + j(T_a + T_j)T_j T_v\\[10pt]
-l_5&amp;= \frac{11}{6} j T_j^3 + \frac{5}{2} j T_a T_j^2 + \frac{1}{2} j T_a^2 T_j + j(T_a + T_j)T_j T_v \\[10pt]
-l_6&amp;= \frac{11}{6} j T_j^3 + 3 j T_a T_j^2 + j T_a^2 T_j + j(T_a + T_j)T_j T_v\\[10pt]
-l_7&amp;= 2 j T_j^3 + 3 j T_a T_j^2 + j T_a^2 T_j + j(T_a + T_j)T_j T_v
-\end{align}
-</code></pre></div>
-<p>These equations are used to determine the shape of a path. Additionally, by applying further mathematical operations to these basic equations, the expressions of the following subsections can be derived.</p>
-<h4 id="calculation-of-maximum-acceleration-from-transition-time-and-final-shift-length">Calculation of Maximum Acceleration from transition time and final shift length<a class="headerlink" href="#calculation-of-maximum-acceleration-from-transition-time-and-final-shift-length" title="Permanent link">#</a></h4>
-<p>In the case where there are no limitations on lateral velocity and lateral acceleration, the maximum lateral acceleration during the shifting can be calculated as follows. The constant-jerk time is given by <span class="arithmatex"><span class="MathJax_Preview">T_j = T_{\rm total}/4</span><script type="math/tex">T_j = T_{\rm total}/4</script></span> because of its symmetric property. Since <span class="arithmatex"><span class="MathJax_Preview">T_a=T_v=0</span><script type="math/tex">T_a=T_v=0</script></span>, the final shift length <span class="arithmatex"><span class="MathJax_Preview">L=l_7=2jT_j^3</span><script type="math/tex">L=l_7=2jT_j^3</script></span> can be determined using the above equation. The maximum lateral acceleration is then given by <span class="arithmatex"><span class="MathJax_Preview">a_{\rm max} =jT_j</span><script type="math/tex">a_{\rm max} =jT_j</script></span>. This results in the following expression for the maximum lateral acceleration:</p>
-<div class="highlight"><pre><span></span><code>\begin{align}
-a_{\rm max}  = \frac{8L}{T_{\rm total}^2}
-\end{align}
-</code></pre></div>
-<h4 id="calculation-of-ta-tj-and-jerk-from-acceleration-limit">Calculation of Ta, Tj and jerk from acceleration limit<a class="headerlink" href="#calculation-of-ta-tj-and-jerk-from-acceleration-limit" title="Permanent link">#</a></h4>
-<p>In the case where there are no limitations on lateral velocity, the constant-jerk and acceleration times, as well as the required jerk can be calculated from the acceleration limit, total time, and final shift length as follows. Since <span class="arithmatex"><span class="MathJax_Preview">T_v=0</span><script type="math/tex">T_v=0</script></span>, the final shift length is given by:</p>
-<div class="highlight"><pre><span></span><code>\begin{align}
-L = l_7 = 2 j T_j^3 + 3 j T_a T_j^2 + j T_a^2 T_j
-\end{align}
-</code></pre></div>
-<p>Additionally, the velocity profile reveals the following relations:</p>
-<div class="highlight"><pre><span></span><code>\begin{align}
-a_{\rm lim} &amp;= j T_j\\
-T_{\rm total} &amp;= 4T_j + 2T_a
-\end{align}
-</code></pre></div>
-<p>By solving these three equations, the following can be obtained:</p>
-<div class="highlight"><pre><span></span><code>\begin{align}
-T_j&amp;=\frac{T_{\rm total}}{2} - \frac{2L}{a_{\rm lim} T_{\rm total}}\\[10pt]
-T_a&amp;=\frac{4L}{a_{\rm lim} T_{\rm total}} - \frac{T_{\rm total}}{2}\\[10pt]
-jerk&amp;=\frac{2a_{\rm lim} ^2T_{\rm total}}{a_{\rm lim} T_{\rm total}^2-4L}
-\end{align}
-</code></pre></div>
-<p>where <span class="arithmatex"><span class="MathJax_Preview">T_j</span><script type="math/tex">T_j</script></span> is the constant-jerk time, <span class="arithmatex"><span class="MathJax_Preview">T_a</span><script type="math/tex">T_a</script></span> is the constant acceleration time, <span class="arithmatex"><span class="MathJax_Preview">j</span><script type="math/tex">j</script></span> is the required jerk, <span class="arithmatex"><span class="MathJax_Preview">a_{\rm lim}</span><script type="math/tex">a_{\rm lim}</script></span> is the acceleration limit, and <span class="arithmatex"><span class="MathJax_Preview">L</span><script type="math/tex">L</script></span> is the final shift length.</p>
-<h4 id="calculation-of-required-time-from-jerk-and-acceleration-constraint">Calculation of Required Time from Jerk and Acceleration Constraint<a class="headerlink" href="#calculation-of-required-time-from-jerk-and-acceleration-constraint" title="Permanent link">#</a></h4>
-<p>In the case where there are no limitations on lateral velocity, the total time required for shifting can be calculated from the jerk and acceleration limits and the final shift length as follows. By solving the two equations given above:</p>
-<div class="highlight"><pre><span></span><code>L = l_7 = 2 j T_j^3 + 3 j T_a T_j^2 + j T_a^2 T_j,\quad a_{\rm lim} = j T_j
-</code></pre></div>
-<p>we obtain the following expressions:</p>
-<div class="highlight"><pre><span></span><code>\begin{align}
-T_j &amp;= \frac{a_{\rm lim}}{j}\\[10pt]
-T_a &amp;= \frac{1}{2}\sqrt{\frac{a_{\rm lim}}{j}^2 + \frac{4L}{a_{\rm lim}}} - \frac{3a_{\rm lim}}{2j}
-\end{align}
-</code></pre></div>
-<p>The total time required for shifting can then be calculated as <span class="arithmatex"><span class="MathJax_Preview">T_{\rm total}=4T_j+2T_a</span><script type="math/tex">T_{\rm total}=4T_j+2T_a</script></span>.</p>
-<h3 id="limitation">Limitation<a class="headerlink" href="#limitation" title="Permanent link">#</a></h3>
+<h1 id="limitations">Limitations<a class="headerlink" href="#limitations" title="Permanent link">#</a></h1>
+<p>The document describes the limitations that are currently present in the <code>behavior_path_planner</code> module.</p>
+<p>The following items (but not limited to) fall in the scope of limitation:</p>
 <ul>
-<li>Since <span class="arithmatex"><span class="MathJax_Preview">T_v</span><script type="math/tex">T_v</script></span> is zero in almost all cases of lane change and avoidance, <span class="arithmatex"><span class="MathJax_Preview">T_v</span><script type="math/tex">T_v</script></span> is not considered in the current implementation.</li>
+<li>limitations due to the third-party API design and requirement</li>
+<li>limitations due to any shortcoming out of the developer's control.</li>
 </ul>
+<h2 id="limitation-multiple-connected-opposite-lanes-require-linestring-with-shared-id">Limitation: Multiple connected opposite lanes require Linestring with shared ID<a class="headerlink" href="#limitation-multiple-connected-opposite-lanes-require-linestring-with-shared-id" title="Permanent link">#</a></h2>
+<p>To fully utilize the <code>Lanelet2</code>'s <a href="https://github.com/fzi-forschungszentrum-informatik/Lanelet2/blob/master/lanelet2_core/doc/LaneletPrimitives.md#lanelet">API</a>, the design of the vector map (<code>.osm</code>) needs to follow all the criteria described in <code>Lanelet2</code> documentation. Specifically, in the case of 2 or more lanes, the Linestrings that divide the current lane with the opposite/adjacent lane need to have a matching <code>Linestring ID</code>. Assume the following <strong>ideal case</strong>.</p>
+<p><img alt="limitation01-01-ideal-case1" src="../image/limitations/limitation01-01.png" /></p>
+<p>In the image, <code>Linestring ID51</code> is shared by <code>Lanelet A</code> and <code>Lanelet B</code>. Hence we can directly use the available <code>left</code>, <code>adjacentLeft</code>, <code>right</code>, <code>adjacentRight</code> and <code>findUsages</code> method within <code>Lanelet2</code>'s API to directly query the direction and opposite lane availability.</p>
+<div class="highlight"><pre><span></span><code><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">right_lane</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">routing_graph_ptr_</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">(</span><span class="n">lanelet</span><span class="p">);</span>
+<span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">adjacent_right_lane</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">routing_graph_ptr_</span><span class="o">-&gt;</span><span class="n">adjacentRight</span><span class="p">(</span><span class="n">lanelet</span><span class="p">);</span>
+<span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">opposite_right_lane</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lanelet_map_ptr_</span><span class="o">-&gt;</span><span class="n">laneletLayer</span><span class="p">.</span><span class="n">findUsages</span><span class="p">(</span><span class="n">lanelet</span><span class="p">.</span><span class="n">rightBound</span><span class="p">().</span><span class="n">invert</span><span class="p">());</span>
+</code></pre></div>
+<p>The following images show the situation where <strong>these API does not work directly</strong>. This means that we cannot use them straight away, and several assumptions and logical instruction are needed to make these APIs work.</p>
+<p><img alt="limitation01-02-non-work" src="../image/limitations/limitation01-02-not-work.png" /></p>
+<p>In this example (multiple linestring issues), <code>Lanelet C</code> contains <code>Linestring ID61</code> and <code>ID62</code>, while <code>Lanelet D</code> contains <code>Linestring ID63</code> and <code>ID 64</code>. Although the <code>Linestring ID62</code> and <code>ID64</code> have identical point IDs and seem visually connected, the API will treat these Linestring as though they are separated. When it searches for any <code>Lanelet</code> that is connected via <code>Linestring ID62</code>, it will return <code>NULL</code>, since <code>ID62</code> only connects to <code>Lanelet C</code> and not other <code>Lanelet</code>.</p>
+<p>Although, in this case, it is possible to forcefully search the lanelet availability by checking the lanelet that contains the points, using<code>getLaneletFromPoint</code> method. But, the implementation requires complex rules for it to work. Take the following images as an example.</p>
+<p><img alt="limitation01-03-not-equal-length" src="../image/limitations/limitation01-03-not-equal-length.png" /></p>
+<p>Assume <code>Object X</code> is in <code>Lanelet F</code>. We can forcefully search <code>Lanelet E</code> via <code>Point 7</code>, and it will work if <code>Point 7</code> is utilized by <strong>only 2 lanelet</strong>. However, the complexity increases when we want to start searching for the <strong>direction</strong> of the opposite lane. We can infer the direction of the lanelet by using mathematical operations (dot product of vector <code>V_ID72</code> (<code>Point 6</code> minus <code>Point 9</code>), and <code>V_ID74</code> (<code>Point 7</code> minus <code>Point 8</code>). But, notice that we did not use Point 7 in V_ID72. This is because searching it requires an iteration, adding additional non-beneficial computation.</p>
+<p>Suppose the points are used by <strong>more than 2 lanelets</strong>. In that case, we have to find the differences for all lanelet, and the result might be undefined. The reason is that the differences between the coordinates do not reflect the actual <strong>shape</strong> of the lanelet. The following image demonstrates this point.</p>
+<p><img alt="equal-length-but-non-identical-shape" src="../image/limitations/limitation01-04-equal-length.png" /></p>
+<p><img alt="points-shared-more-than-one" src="../image/limitations/limitation01-04-not-equal.png" /></p>
+<p>There are many other available solutions to try. However, further attempt to solve this might cause issues in the future, especially for maintaining or scaling up the software.</p>
+<p>In conclusion, the multiple Linestring issues will not be supported. Covering these scenarios might give the user an "everything is possible" impression. This is dangerous since any attempt to create a non-standardized vector map is not compliant with safety regulations.</p>
+<h2 id="limitation-avoidance-at-corners-and-intersections">Limitation: Avoidance at Corners and Intersections<a class="headerlink" href="#limitation-avoidance-at-corners-and-intersections" title="Permanent link">#</a></h2>
+<p>Currently, the implementation doesn't cover avoidance at corners and intersections. The reason is similar to here. However, this case can still be supported in the future (assuming the vector map is defined correctly).</p>
+<p><img alt="limitation-at-the-intersections" src="../image/limitations/limitation-intersection.png" /></p>
+<p><img alt="limitation-at-the-corner" src="../image/limitations/limitation-corner.png" /></p>
+<h2 id="limitation-chattering-shifts">Limitation: Chattering shifts<a class="headerlink" href="#limitation-chattering-shifts" title="Permanent link">#</a></h2>
+<p>There are possibilities that the shifted path chatters as a result of various factors. For example, bounded box shape or position from the perception input. Sometimes, it is difficult for the perception to get complete information about the object's size. As the object size is updated, the object length will also be updated. This might cause shifts point to be re-calculated, therefore resulting in chattering shift points.</p>
+<p><img alt="limitation-chattering-shift" src="../image/limitations/limitation-chattering_shifts.png" /></p>
 
 
 
@@ -11906,7 +11871,7 @@ T_a &amp;= \frac{1}{2}\sqrt{\frac{a_{\rm lim}}{j}^2 + \frac{4L}{a_{\rm lim}}} - 
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../behavior_path_planner_lane_change/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Lane Change" rel="prev">
+          <a href="../behavior_path_planner_lane_change_design/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Lane Change design" rel="prev">
             <div class="md-footer__button md-icon">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
             </div>
@@ -11915,20 +11880,20 @@ T_a &amp;= \frac{1}{2}\sqrt{\frac{a_{\rm lim}}{j}^2 + \frac{4L}{a_{\rm lim}}} - 
                 <span class="md-footer__direction">
                   Previous
                 </span>
-                Lane Change
+                Lane Change design
               </div>
             </div>
           </a>
         
         
           
-          <a href="../behavior_path_planner_side-shift/" class="md-footer__link md-footer__link--next" aria-label="Next: Side shift Module" rel="next">
+          <a href="../behavior_path_planner_path_generation_design/" class="md-footer__link md-footer__link--next" aria-label="Next: Path Generation design" rel="next">
             <div class="md-footer__title">
               <div class="md-ellipsis">
                 <span class="md-footer__direction">
                   Next
                 </span>
-                Side shift Module
+                Path Generation design
               </div>
             </div>
             <div class="md-footer__button md-icon">
