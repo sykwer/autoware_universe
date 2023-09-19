@@ -14804,40 +14804,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#clients" class="md-nav__link">
-    Clients
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#semantic_segmentation_server" class="md-nav__link">
-    semantic_segmentation_server
-  </a>
-  
-    <nav class="md-nav" aria-label="semantic_segmentation_server">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#purpose_1" class="md-nav__link">
-    Purpose
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#services_1" class="md-nav__link">
-    Services
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -14862,10 +14828,9 @@
 
 
 <div><h1 id="yabloc_pose_initializer">yabloc_pose_initializer<a class="headerlink" href="#yabloc_pose_initializer" title="Permanent link">#</a></h1>
-<p>This package contains some nodes related to initial pose estimation.</p>
+<p>This package contains a node related to initial pose estimation.</p>
 <ul>
 <li><a href="#camera_pose_initializer">camera_pose_initializer</a></li>
-<li><a href="#semantic_segmentation_server">semantic_segmentation_server</a></li>
 </ul>
 <p>Ideally, this package downloads a pre-trained semantic segmentation model during the build and loads it at runtime for initialization.
 However, to handle cases where network connectivity is not available at build time, <strong>the default behavior is not to download the model during build.</strong>
@@ -14973,45 +14938,6 @@ Even if the model is not downloaded, initialization will still complete, but the
 <td><code>yabloc_align_srv</code></td>
 <td><code>tier4_localization_msgs::srv::PoseWithCovarianceStamped</code></td>
 <td>initial pose estimation request</td>
-</tr>
-</tbody>
-</table>
-<h3 id="clients">Clients<a class="headerlink" href="#clients" title="Permanent link">#</a></h3>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>semantic_segmentation_srv</code></td>
-<td><code>yabloc_pose_initializer::srv::SemanticSegmentation</code></td>
-<td>semantic segmentation request</td>
-</tr>
-</tbody>
-</table>
-<h2 id="semantic_segmentation_server">semantic_segmentation_server<a class="headerlink" href="#semantic_segmentation_server" title="Permanent link">#</a></h2>
-<h3 id="purpose_1">Purpose<a class="headerlink" href="#purpose_1" title="Permanent link">#</a></h3>
-<ul>
-<li>This node performs semantic segmentation.</li>
-</ul>
-<h3 id="services_1">Services<a class="headerlink" href="#services_1" title="Permanent link">#</a></h3>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>semantic_segmentation_srv</code></td>
-<td><code>yabloc_pose_initializer::srv::SemanticSegmentation</code></td>
-<td>semantic segmentation request</td>
 </tr>
 </tbody>
 </table></div>

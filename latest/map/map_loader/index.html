@@ -15069,12 +15069,7 @@ Please see <a href="https://github.com/autowarefoundation/autoware_msgs/tree/mai
 <h3 id="feature_1">Feature<a class="headerlink" href="#feature_1" title="Permanent link">#</a></h3>
 <p>lanelet2_map_loader loads Lanelet2 file and publishes the map data as autoware_auto_mapping_msgs/HADMapBin message.
 The node projects lan/lon coordinates into arbitrary coordinates defined in <code>/map/map_projector_info</code> from <code>map_projection_loader</code>.
-The node supports the following three types of coordinate systems:</p>
-<ul>
-<li>MGRS</li>
-<li>LocalCartesianUTM</li>
-<li>local</li>
-</ul>
+Please see <a href="https://github.com/tier4/tier4_autoware_msgs/blob/tier4/universe/tier4_map_msgs/msg/MapProjectorInfo.msg">tier4_autoware_msgs/msg/MapProjectorInfo.msg</a> for supported projector types.</p>
 <h3 id="how-to-run">How to run<a class="headerlink" href="#how-to-run" title="Permanent link">#</a></h3>
 <p><code>ros2 run map_loader lanelet2_map_loader --ros-args -p lanelet2_map_path:=path/to/map.osm</code></p>
 <h3 id="subscribed-topics">Subscribed Topics<a class="headerlink" href="#subscribed-topics" title="Permanent link">#</a></h3>

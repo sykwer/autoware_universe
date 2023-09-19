@@ -14912,6 +14912,11 @@ The positions and orientations of the AR-Tags are assumed to be written in the L
 <td align="left"><code>sensor_msgs::msg::CameraInfo</code></td>
 <td align="left">Camera Info</td>
 </tr>
+<tr>
+<td align="left"><code>~/input/ekf_pose</code></td>
+<td align="left"><code>geometry_msgs::msg::PoseWithCovarianceStamped</code></td>
+<td align="left">EKF Pose without IMU correction. It is used to validate detected AR tags by filtering out False Positives. Only if the EKF Pose and the AR tag-detected Pose are within a certain temporal and spatial range, the AR tag-detected Pose is considered valid and published.</td>
+</tr>
 </tbody>
 </table>
 <h4 id="output">Output<a class="headerlink" href="#output" title="Permanent link">#</a></h4>
