@@ -6,6 +6,8 @@ autoware_package()
 
 find_package(Eigen3 REQUIRED)
 
+find_package(rclcpp_component_container_callback_isolated REQUIRED)
+
 include_directories(
   SYSTEM
     ${EIGEN3_INCLUDE_DIR}
@@ -25,6 +27,8 @@ ament_auto_add_library(ekf_localizer_lib SHARED
 target_link_libraries(ekf_localizer_lib Eigen3::Eigen)
 
 ament_auto_add_executable(ekf_localizer src/ekf_localizer_node.cpp)
+ament_target_dependencies(ekf_localizer rclcpp_component_container_callback_isolated)
+target_include_directories(ekf_localizer PRIVATE ${rclcpp_conponent_container_callback_isolated_INCLUDE_DIRS})
 
 target_compile_options(ekf_localizer PUBLIC -g -Wall -Wextra -Wpedantic -Werror)
 

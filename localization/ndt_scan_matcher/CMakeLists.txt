@@ -4,6 +4,10 @@ project(ndt_scan_matcher)
 find_package(autoware_cmake REQUIRED)
 autoware_package()
 
+find_package(rclcpp_component_container_callback_isolated REQUIRED)
+#find_package(ros2_thread_configurator REQUIRED)
+#find_package(thread_config_msgs REQUIRED)
+
 # Compile flags for SIMD instructions
 # Be careful to change these options, especially when `ndt_omp` implementation is used.
 # All packages linked to `ndt_omp` should use the same SIMD instruction set.
@@ -35,6 +39,10 @@ ament_auto_add_executable(ndt_scan_matcher
   src/map_module.cpp
   src/map_update_module.cpp
 )
+
+ament_target_dependencies(ndt_scan_matcher rclcpp_component_container_callback_isolated)
+
+target_include_directories(ndt_scan_matcher PRIVATE ${rclcpp_component_container_callback_isolated_INCLUDE_DIRS})
 
 link_directories(${PCL_LIBRARY_DIRS})
 target_link_libraries(ndt_scan_matcher ${PCL_LIBRARIES})
