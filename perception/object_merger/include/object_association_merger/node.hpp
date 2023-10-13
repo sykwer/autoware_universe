@@ -23,6 +23,7 @@
 
 #include <message_filters/subscriber.h>
 #include <message_filters/sync_policies/approximate_time.h>
+#include <message_filters/sync_policies/exact_time.h>
 #include <message_filters/synchronizer.h>
 #include <tf2/LinearMath/Transform.h>
 #include <tf2/convert.h>
@@ -61,7 +62,7 @@ private:
     merged_object_pub_;
   message_filters::Subscriber<autoware_auto_perception_msgs::msg::DetectedObjects> object0_sub_;
   message_filters::Subscriber<autoware_auto_perception_msgs::msg::DetectedObjects> object1_sub_;
-  typedef message_filters::sync_policies::ApproximateTime<
+  typedef message_filters::sync_policies::ExactTime<
     autoware_auto_perception_msgs::msg::DetectedObjects,
     autoware_auto_perception_msgs::msg::DetectedObjects>
     SyncPolicy;

@@ -202,9 +202,9 @@ def launch_setup(context, *args, **kwargs):
 
     container = ComposableNodeContainer(
         name="euclidean_cluster_container",
-        package="rclcpp_components",
+        package="rclcpp_component_container_callback_isolated",
         namespace=ns,
-        executable="component_container",
+        executable="component_container_callback_isolated",
         composable_node_descriptions=[],
         output="screen",
     )

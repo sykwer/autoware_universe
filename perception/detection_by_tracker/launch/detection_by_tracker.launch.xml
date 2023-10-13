@@ -4,9 +4,11 @@
   <arg name="input/initial_objects" default="/perception/object_recognition/detection/clustering/objects_with_feature"/>
   <arg name="output" default="objects"/>
 
-  <node pkg="detection_by_tracker" exec="detection_by_tracker" name="detection_by_tracker_node" output="screen">
-    <remap from="~/input/tracked_objects" to="$(var input/tracked_objects)"/>
-    <remap from="~/input/initial_objects" to="$(var input/initial_objects)"/>
-    <remap from="~/output" to="$(var output)"/>
-  </node>
+  <node_container pkg="rclcpp_component_container_callback_isolated" exec="component_container_callback_isolated" name="detection_by_tracker_node_container" namespace="">
+    <composable_node pkg="detection_by_tracker" plugin="DetectionByTracker" name="detection_by_tracker_node" namespace="">
+      <remap from="~/input/tracked_objects" to="$(var input/tracked_objects)"/>
+      <remap from="~/input/initial_objects" to="$(var input/initial_objects)"/>
+      <remap from="~/output" to="$(var output)"/>
+    </composable_node>
+  </node_container>
 </launch>

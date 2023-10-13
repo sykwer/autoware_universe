@@ -24,6 +24,7 @@
 
 #include <message_filters/subscriber.h>
 #include <message_filters/sync_policies/approximate_time.h>
+#include <message_filters/sync_policies/exact_time.h>
 #include <message_filters/synchronizer.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
@@ -53,7 +54,7 @@ private:
   tf2_ros::Buffer tf_buffer_;
   tf2_ros::TransformListener tf_listener_;
 
-  typedef message_filters::sync_policies::ApproximateTime<
+  typedef message_filters::sync_policies::ExactTime<
     autoware_auto_perception_msgs::msg::DetectedObjects, sensor_msgs::msg::PointCloud2>
     SyncPolicy;
   typedef message_filters::Synchronizer<SyncPolicy> Sync;

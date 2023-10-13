@@ -10,20 +10,36 @@
   <arg name="has_twist" default="false"/>
   <arg name="build_only" default="false" description="shutdown node after TensorRT engine file is built"/>
 
-  <node pkg="lidar_centerpoint" exec="lidar_centerpoint_node" name="lidar_centerpoint" output="screen">
-    <remap from="~/input/pointcloud" to="$(var input/pointcloud)"/>
-    <remap from="~/output/objects" to="$(var output/objects)"/>
-    <param name="score_threshold" value="$(var score_threshold)"/>
-    <param name="densification_world_frame_id" value="map"/>
-    <param name="densification_num_past_frames" value="1"/>
-    <param name="trt_precision" value="fp16"/>
-    <param name="has_twist" value="$(var has_twist)"/>
-    <param name="encoder_onnx_path" value="$(var model_path)/pts_voxel_encoder_$(var model_name).onnx"/>
-    <param name="encoder_engine_path" value="$(var model_path)/pts_voxel_encoder_$(var model_name).engine"/>
-    <param name="head_onnx_path" value="$(var model_path)/pts_backbone_neck_head_$(var model_name).onnx"/>
-    <param name="head_engine_path" value="$(var model_path)/pts_backbone_neck_head_$(var model_name).engine"/>
-    <param name="build_only" value="$(var build_only)"/>
-    <param from="$(var model_param_path)"/>
-    <param from="$(var class_remapper_param_path)"/>
-  </node>
+  <load_composable_node target="pointcloud_container">
+    <composable_node pkg="lidar_centerpoint" plugin="centerpoint::LidarCenterPointNode" name="lidar_centerpoint" namespace="">
+      <remap from="~/input/pointcloud" to="$(var input/pointcloud)"/>
+      <remap from="~/output/objects" to="$(var output/objects)"/>
+      <param name="score_threshold" value="$(var score_threshold)"/>
+      <param name="densification_world_frame_id" value="map"/>
+      <param name="densification_num_past_frames" value="1"/>
+      <param name="trt_precision" value="fp16"/>
+      <param name="has_twist" value="$(var has_twist)"/>
+      <param name="encoder_onnx_path" value="$(var model_path)/pts_voxel_encoder_$(var model_name).onnx"/>
+      <param name="encoder_engine_path" value="$(var model_path)/pts_voxel_encoder_$(var model_name).engine"/>
+      <param name="head_onnx_path" value="$(var model_path)/pts_backbone_neck_head_$(var model_name).onnx"/>
+      <param name="head_engine_path" value="$(var model_path)/pts_backbone_neck_head_$(var model_name).engine"/>
+      <param name="build_only" value="$(var build_only)"/>
+      <param name="class_names" value='["CAR", "TRUCK", "BUS", "BICYCLE", "PEDESTRIAN"]' />
+      <param name="point_feature_size" value="4" />
+      <param name="max_voxel_size" value="40000" />
+      <param name="point_cloud_range" value='[-76.8, -76.8, -4.0, 76.8, 76.8, 6.0]' />
+      <param name="voxel_size" value='[0.32, 0.32, 10.0]' />
+      <param name="downsample_factor" value="2" />
+      <param name="encoder_in_feature_size" value="9" />
+      <param name="circle_nms_dist_threshold" value="0.5" />
+      <param name="iou_nms_target_class_names" value='["CAR"]' />
+      <param name="iou_nms_search_distance_2d" value="10.0" />
+      <param name="iou_nms_threshold" value="0.1" />
+      <param name="yaw_norm_thresholds" value='[0.3, 0.3, 0.3, 0.3, 0.0]' />
+      <param name="allow_remapping_by_area_matrix" value='[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]' />
+      <param name="min_area_matrix" value='[0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 12.100, 0.000, 36.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 36.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 36.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000]' />
+      <param name="max_area_matrix" value='[0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 36.000, 0.000, .inf, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, .inf, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, .inf, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000]' />
+    </composable_node>
+  </load_composable_node>
 </launch>
+

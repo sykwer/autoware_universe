@@ -90,7 +90,7 @@ pointcloud_preprocessor::Filter::Filter(
   // Set publisher
   {
     pub_output_ = this->create_publisher<PointCloud2>(
-      "output", rclcpp::SensorDataQoS().keep_last(max_queue_size_));
+      "output", rclcpp::QoS(max_queue_size_));
   }
 
   subscribe(filter_name);

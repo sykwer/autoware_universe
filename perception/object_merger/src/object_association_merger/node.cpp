@@ -76,8 +76,8 @@ ObjectAssociationMergerNode::ObjectAssociationMergerNode(const rclcpp::NodeOptio
 : rclcpp::Node("object_association_merger_node", node_options),
   tf_buffer_(get_clock()),
   tf_listener_(tf_buffer_),
-  object0_sub_(this, "input/object0", rclcpp::QoS{1}.get_rmw_qos_profile()),
-  object1_sub_(this, "input/object1", rclcpp::QoS{1}.get_rmw_qos_profile()),
+  object0_sub_(this, "input/object0", rclcpp::QoS{5}.get_rmw_qos_profile()),
+  object1_sub_(this, "input/object1", rclcpp::QoS{5}.get_rmw_qos_profile()),
   sync_(SyncPolicy(10), object0_sub_, object1_sub_)
 {
   // Create publishers and subscribers
@@ -85,7 +85,7 @@ ObjectAssociationMergerNode::ObjectAssociationMergerNode(const rclcpp::NodeOptio
   using std::placeholders::_2;
   sync_.registerCallback(std::bind(&ObjectAssociationMergerNode::objectsCallback, this, _1, _2));
   merged_object_pub_ = create_publisher<autoware_auto_perception_msgs::msg::DetectedObjects>(
-    "output/object", rclcpp::QoS{1});
+    "output/object", rclcpp::QoS{5});
 
   // Parameters
   base_link_frame_id_ = declare_parameter<std::string>("base_link_frame_id", "base_link");

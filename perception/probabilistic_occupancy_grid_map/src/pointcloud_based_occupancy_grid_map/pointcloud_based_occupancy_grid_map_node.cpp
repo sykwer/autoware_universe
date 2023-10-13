@@ -70,9 +70,9 @@ PointcloudBasedOccupancyGridMapNode::PointcloudBasedOccupancyGridMapNode(
   /* Subscriber and publisher */
   obstacle_pointcloud_sub_.subscribe(
     this, "~/input/obstacle_pointcloud",
-    rclcpp::SensorDataQoS{}.keep_last(1).get_rmw_qos_profile());
+    rclcpp::SensorDataQoS{}.keep_last(2).get_rmw_qos_profile());
   raw_pointcloud_sub_.subscribe(
-    this, "~/input/raw_pointcloud", rclcpp::SensorDataQoS{}.keep_last(1).get_rmw_qos_profile());
+    this, "~/input/raw_pointcloud", rclcpp::SensorDataQoS{}.keep_last(2).get_rmw_qos_profile());
   sync_ptr_ = std::make_shared<Sync>(SyncPolicy(5), obstacle_pointcloud_sub_, raw_pointcloud_sub_);
 
   sync_ptr_->registerCallback(

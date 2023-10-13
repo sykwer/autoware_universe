@@ -77,20 +77,20 @@ using Polygon2d = tier4_autoware_utils::Polygon2d;
 ObstaclePointCloudBasedValidator::ObstaclePointCloudBasedValidator(
   const rclcpp::NodeOptions & node_options)
 : rclcpp::Node("obstacle_pointcloud_based_validator", node_options),
-  objects_sub_(this, "~/input/detected_objects", rclcpp::QoS{1}.get_rmw_qos_profile()),
+  objects_sub_(this, "~/input/detected_objects", rclcpp::QoS(5).get_rmw_qos_profile()),
   obstacle_pointcloud_sub_(
     this, "~/input/obstacle_pointcloud",
-    rclcpp::SensorDataQoS{}.keep_last(1).get_rmw_qos_profile()),
+    rclcpp::QoS(5).get_rmw_qos_profile()),
   tf_buffer_(get_clock()),
   tf_listener_(tf_buffer_),
-  sync_(SyncPolicy(10), objects_sub_, obstacle_pointcloud_sub_)
+  sync_(SyncPolicy(5), objects_sub_, obstacle_pointcloud_sub_)
 {
   using std::placeholders::_1;
   using std::placeholders::_2;
   sync_.registerCallback(
     std::bind(&ObstaclePointCloudBasedValidator::onObjectsAndObstaclePointCloud, this, _1, _2));
   objects_pub_ = create_publisher<autoware_auto_perception_msgs::msg::DetectedObjects>(
-    "~/output/objects", rclcpp::QoS{1});
+    "~/output/objects", rclcpp::QoS(5));
 
   points_num_threshold_param_.min_points_num = declare_parameter<int>("min_points_num", 10);
   points_num_threshold_param_.max_points_num = declare_parameter<int>("max_points_num", 10);
