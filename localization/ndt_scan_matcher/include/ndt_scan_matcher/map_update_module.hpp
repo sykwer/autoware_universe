@@ -38,6 +38,7 @@
 #include <optional>
 #include <string>
 #include <vector>
+#include <mutex>
 
 class MapUpdateModule
 {
@@ -75,6 +76,7 @@ private:
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr ekf_odom_sub_;
 
   rclcpp::CallbackGroup::SharedPtr map_callback_group_;
+  rclcpp::CallbackGroup::SharedPtr odom_cb_;
 
   std::shared_ptr<NormalDistributionsTransform> ndt_ptr_;
   std::mutex * ndt_ptr_mutex_;
@@ -85,7 +87,13 @@ private:
   std::shared_ptr<std::map<std::string, std::string>> state_ptr_;
 
   std::optional<geometry_msgs::msg::Point> last_update_position_ = std::nullopt;
+
   std::optional<geometry_msgs::msg::Point> current_position_ = std::nullopt;
+
+  std::mutex mtx_;
+  std::optional<geometry_msgs::msg::Point> current_position_bak_ = std::nullopt;
+
+
   const double dynamic_map_loading_update_distance_;
   const double dynamic_map_loading_map_radius_;
   const double lidar_radius_;
