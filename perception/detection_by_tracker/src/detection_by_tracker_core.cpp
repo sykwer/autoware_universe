@@ -154,7 +154,7 @@ DetectionByTracker::DetectionByTracker(const rclcpp::NodeOptions & node_options)
   tf_listener_(tf_buffer_)
 {
   {
-    auto cg_trackers_ = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+    cg_trackers_ = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
     auto opt = rclcpp::SubscriptionOptions();
     opt.callback_group = cg_trackers_;
 
@@ -164,7 +164,7 @@ DetectionByTracker::DetectionByTracker(const rclcpp::NodeOptions & node_options)
   }
 
   {
-    auto cg_initial_objects_ = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+    cg_initial_objects_ = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
     auto opt = rclcpp::SubscriptionOptions();
     opt.callback_group = cg_initial_objects_;
 
