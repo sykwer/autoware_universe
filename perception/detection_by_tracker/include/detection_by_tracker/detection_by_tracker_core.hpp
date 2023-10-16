@@ -47,11 +47,15 @@
 #include <map>
 #include <memory>
 #include <vector>
+#include <mutex>
 
 class TrackerHandler
 {
 private:
   std::deque<autoware_auto_perception_msgs::msg::TrackedObjects> objects_buffer_;
+
+  std::mutex mtx_;
+  std::deque<autoware_auto_perception_msgs::msg::TrackedObjects> objects_buffer_bak_;
 
 public:
   TrackerHandler() = default;
@@ -68,9 +72,13 @@ public:
 
 private:
   rclcpp::Publisher<autoware_auto_perception_msgs::msg::DetectedObjects>::SharedPtr objects_pub_;
+
   rclcpp::Subscription<autoware_auto_perception_msgs::msg::TrackedObjects>::SharedPtr trackers_sub_;
+  rclcpp::CallbackGroup::SharedPtr cg_trackers_;
+
   rclcpp::Subscription<tier4_perception_msgs::msg::DetectedObjectsWithFeature>::SharedPtr
     initial_objects_sub_;
+  rclcpp::CallbackGroup::SharedPtr cg_initial_objects_;
 
   tf2_ros::Buffer tf_buffer_;
   tf2_ros::TransformListener tf_listener_;

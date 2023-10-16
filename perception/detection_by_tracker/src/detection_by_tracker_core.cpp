@@ -82,18 +82,25 @@ void TrackerHandler::onTrackedObjects(
 {
   constexpr size_t max_buffer_size = 10;
 
+  std::lock_guard<std::mutex> lock(mtx_);
+
   // Add tracked objects to buffer
-  objects_buffer_.push_front(*msg);
+  objects_buffer_bak_.push_front(*msg);
 
   // Remove old data
-  while (max_buffer_size < objects_buffer_.size()) {
-    objects_buffer_.pop_back();
+  while (max_buffer_size < objects_buffer_bak_.size()) {
+    objects_buffer_bak_.pop_back();
   }
 }
 
 bool TrackerHandler::estimateTrackedObjects(
   const rclcpp::Time & time, autoware_auto_perception_msgs::msg::TrackedObjects & output)
 {
+  {
+    std::lock_guard<std::mutex> lock(mtx_);
+    objects_buffer_ = objects_buffer_bak_;
+  }
+
   if (objects_buffer_.empty()) {
     return false;
   }
@@ -146,14 +153,27 @@ DetectionByTracker::DetectionByTracker(const rclcpp::NodeOptions & node_options)
   tf_buffer_(this->get_clock()),
   tf_listener_(tf_buffer_)
 {
-  // Create publishers and subscribers
-  trackers_sub_ = create_subscription<autoware_auto_perception_msgs::msg::TrackedObjects>(
-    "~/input/tracked_objects", rclcpp::QoS{1},
-    std::bind(&TrackerHandler::onTrackedObjects, &tracker_handler_, std::placeholders::_1));
-  initial_objects_sub_ =
-    create_subscription<tier4_perception_msgs::msg::DetectedObjectsWithFeature>(
-      "~/input/initial_objects", rclcpp::QoS{1},
-      std::bind(&DetectionByTracker::onObjects, this, std::placeholders::_1));
+  {
+    auto cg_trackers_ = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+    auto opt = rclcpp::SubscriptionOptions();
+    opt.callback_group = cg_trackers_;
+
+    trackers_sub_ = create_subscription<autoware_auto_perception_msgs::msg::TrackedObjects>(
+      "~/input/tracked_objects", rclcpp::QoS{1},
+      std::bind(&TrackerHandler::onTrackedObjects, &tracker_handler_, std::placeholders::_1), opt);
+  }
+
+  {
+    auto cg_initial_objects_ = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+    auto opt = rclcpp::SubscriptionOptions();
+    opt.callback_group = cg_initial_objects_;
+
+    initial_objects_sub_ =
+      create_subscription<tier4_perception_msgs::msg::DetectedObjectsWithFeature>(
+        "~/input/initial_objects", rclcpp::QoS{1},
+        std::bind(&DetectionByTracker::onObjects, this, std::placeholders::_1), opt);
+  }
+
   objects_pub_ = create_publisher<autoware_auto_perception_msgs::msg::DetectedObjects>(
     "~/output", rclcpp::QoS{1});
 
