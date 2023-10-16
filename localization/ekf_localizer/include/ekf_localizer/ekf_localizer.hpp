@@ -47,6 +47,7 @@
 #include <queue>
 #include <string>
 #include <vector>
+#include <mutex>
 
 class Simple1DFilter
 {
@@ -128,11 +129,16 @@ private:
   rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pub_biased_pose_cov_;
   //!< @brief initial pose subscriber
   rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr sub_initialpose_;
+
   //!< @brief measurement pose with covariance subscriber
   rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr sub_pose_with_cov_;
+  rclcpp::CallbackGroup::SharedPtr cg_pose_with_cov_;
+
   //!< @brief measurement twist with covariance subscriber
   rclcpp::Subscription<geometry_msgs::msg::TwistWithCovarianceStamped>::SharedPtr
     sub_twist_with_cov_;
+  rclcpp::CallbackGroup::SharedPtr cg_twist_with_cov_;
+
   //!< @brief time for ekf calculation callback
   rclcpp::TimerBase::SharedPtr timer_control_;
   //!< @brief last predict time
@@ -169,6 +175,11 @@ private:
 
   AgedObjectQueue<geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr> pose_queue_;
   AgedObjectQueue<geometry_msgs::msg::TwistWithCovarianceStamped::SharedPtr> twist_queue_;
+
+  std::mutex pose_mtx_;
+  std::queue<geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr> pose_queue_tmp_;
+  std::mutex twist_mtx_;
+  std::queue<geometry_msgs::msg::TwistWithCovarianceStamped::SharedPtr> twist_queue_tmp_;
 
   geometry_msgs::msg::PoseStamped current_ekf_pose_;  //!< @brief current estimated pose
   geometry_msgs::msg::PoseStamped

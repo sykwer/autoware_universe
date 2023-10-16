@@ -87,12 +87,26 @@ EKFLocalizer::EKFLocalizer(const std::string & node_name, const rclcpp::NodeOpti
   pub_biased_pose_ = create_publisher<geometry_msgs::msg::PoseStamped>("ekf_biased_pose", 1);
   pub_biased_pose_cov_ = create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
     "ekf_biased_pose_with_covariance", 1);
+
   sub_initialpose_ = create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>(
     "initialpose", 1, std::bind(&EKFLocalizer::callbackInitialPose, this, _1));
-  sub_pose_with_cov_ = create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>(
-    "in_pose_with_covariance", 1, std::bind(&EKFLocalizer::callbackPoseWithCovariance, this, _1));
-  sub_twist_with_cov_ = create_subscription<geometry_msgs::msg::TwistWithCovarianceStamped>(
-    "in_twist_with_covariance", 1, std::bind(&EKFLocalizer::callbackTwistWithCovariance, this, _1));
+
+  {
+    cg_pose_with_cov_ = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+    auto opt = rclcpp::SubscriptionOptions();
+    opt.callback_group = cg_pose_with_cov_;
+    sub_pose_with_cov_ = create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>(
+      "in_pose_with_covariance", 1, std::bind(&EKFLocalizer::callbackPoseWithCovariance, this, _1), opt);
+  }
+
+  {
+    cg_twist_with_cov_ = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+    auto opt = rclcpp::SubscriptionOptions();
+    opt.callback_group = cg_twist_with_cov_;
+    sub_twist_with_cov_ = create_subscription<geometry_msgs::msg::TwistWithCovarianceStamped>(
+        "in_twist_with_covariance", 1, std::bind(&EKFLocalizer::callbackTwistWithCovariance, this, _1), opt);
+  }
+
   service_trigger_node_ = create_service<std_srvs::srv::SetBool>(
     "trigger_node_srv",
     std::bind(
@@ -144,6 +158,24 @@ void EKFLocalizer::timerCallback()
     warning_.warnThrottle(
       "The node is not activated. Provide initial pose to pose_initializer", 2000);
     return;
+  }
+
+  {
+    std::lock_guard<std::mutex> lock(twist_mtx_);
+    while (!twist_queue_tmp_.empty()) {
+      auto msg = twist_queue_tmp_.front();
+      twist_queue_.push(msg);
+      twist_queue_tmp_.pop();
+    }
+  }
+
+  {
+    std::lock_guard<std::mutex> lock(pose_mtx_);
+    while (!pose_queue_tmp_.empty()) {
+      auto msg = pose_queue_tmp_.front();
+      pose_queue_.push(msg);
+      pose_queue_tmp_.pop();
+    }
   }
 
   DEBUG_INFO(get_logger(), "========================= timer called =========================");
@@ -344,7 +376,8 @@ void EKFLocalizer::callbackPoseWithCovariance(
     return;
   }
 
-  pose_queue_.push(msg);
+  std::lock_guard<std::mutex> lock(pose_mtx_);
+  pose_queue_tmp_.push(msg);
 }
 
 /*
@@ -353,7 +386,8 @@ void EKFLocalizer::callbackPoseWithCovariance(
 void EKFLocalizer::callbackTwistWithCovariance(
   geometry_msgs::msg::TwistWithCovarianceStamped::SharedPtr msg)
 {
-  twist_queue_.push(msg);
+  std::lock_guard<std::mutex> lock(twist_mtx_);
+  twist_queue_tmp_.push(msg);
 }
 
 /*
