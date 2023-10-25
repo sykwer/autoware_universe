@@ -2,12 +2,17 @@ cmake_minimum_required(VERSION 3.14)
 project(gyro_odometer)
 
 find_package(autoware_cmake REQUIRED)
+find_package(rclcpp_component_container_callback_isolated REQUIRED)
 autoware_package()
 
 ament_auto_add_executable(${PROJECT_NAME}
   src/gyro_odometer_node.cpp
   src/gyro_odometer_core.cpp
 )
+
+ament_target_dependencies(${PROJECT_NAME} rclcpp_component_container_callback_isolated)
+target_include_directories(${PROJECT_NAME} PRIVATE
+  ${rclcpp_component_container_callback_isolated_INCLUDE_DIRS})
 
 target_link_libraries(${PROJECT_NAME} fmt)
 

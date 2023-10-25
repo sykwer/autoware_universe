@@ -14,11 +14,16 @@
 
 #include <vehicle_velocity_converter/vehicle_velocity_converter.hpp>
 
+#include "static_callback_isolated_executor.hpp"
+
 int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
   auto node = std::make_shared<VehicleVelocityConverter>();
-  rclcpp::spin(node);
+  auto executor = std::make_shared<StaticCallbackIsolatedExecutor>();
+  executor->add_node(node);
+  executor->spin();
+
   rclcpp::shutdown();
 
   return 0;
