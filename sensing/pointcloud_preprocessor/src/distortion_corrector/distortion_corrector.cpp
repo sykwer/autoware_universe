@@ -126,6 +126,14 @@ void DistortionCorrectorComponent::onPointCloud(PointCloud2::UniquePtr points_ms
   tf2::Transform tf2_base_link_to_sensor{};
   getTransform(points_msg->header.frame_id, base_link_frame_, &tf2_base_link_to_sensor);
 
+  /*
+  tf2::Quaternion quat = tf2_base_link_to_sensor.getRotation();
+  tf2::Vector3 origin = tf2_base_link_to_sensor.getOrigin();
+
+  RCLCPP_ERROR(get_logger(), "sykwer: Trasform: [Position=(%f, %f, %f), Rotation=(%f, %f, %f, %f)]",
+    origin.getX(), origin.getY(), origin.getZ(), quat.getX(), quat.getY(), quat.getZ(), quat.getW());
+  */
+
   undistortPointCloud(tf2_base_link_to_sensor, *points_msg);
 
   undistorted_points_pub_->publish(std::move(points_msg));
@@ -152,7 +160,7 @@ bool DistortionCorrectorComponent::getTransform(
   }
 
   try {
-    const auto transform_msg =
+    static thread_local auto transform_msg =
       tf2_buffer_.lookupTransform(target_frame, source_frame, tf2::TimePointZero);
     tf2::convert(transform_msg.transform, *tf2_transform_ptr);
   } catch (const tf2::TransformException & ex) {
