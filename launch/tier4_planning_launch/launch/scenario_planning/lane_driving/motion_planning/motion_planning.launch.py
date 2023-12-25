@@ -260,8 +260,8 @@ def launch_setup(context, *args, **kwargs):
     container = ComposableNodeContainer(
         name="motion_planning_container",
         namespace="",
-        package="rclcpp_components",
-        executable=LaunchConfiguration("container_executable"),
+        package="rclcpp_component_container_callback_isolated",
+        executable="component_container_callback_isolated",
         composable_node_descriptions=[
             obstacle_velocity_limiter_component,
         ],

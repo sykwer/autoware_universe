@@ -212,8 +212,8 @@ def launch_setup(context, *args, **kwargs):
     container = ComposableNodeContainer(
         name="behavior_planning_container",
         namespace="",
-        package="rclcpp_components",
-        executable=LaunchConfiguration("container_executable"),
+        package="rclcpp_component_container_callback_isolated",
+        executable="component_container_callback_isolated",
         composable_node_descriptions=[
             behavior_path_planner_component,
             behavior_velocity_planner_component,

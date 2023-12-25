@@ -8,13 +8,15 @@
   <arg name="tracker_setting_path" default="$(find-pkg-share multi_object_tracker)/config/default_tracker.param.yaml"/>
   <arg name="data_association_matrix_path" default="$(find-pkg-share multi_object_tracker)/config/data_association_matrix.param.yaml"/>
 
-  <node pkg="multi_object_tracker" exec="multi_object_tracker" name="multi_object_tracker" output="screen">
-    <remap from="input" to="$(var input)"/>
-    <remap from="output" to="$(var output)"/>
-    <param name="world_frame_id" value="$(var world_frame_id)"/>
-    <param name="publish_rate" value="$(var publish_rate)"/>
-    <param name="enable_delay_compensation" value="$(var enable_delay_compensation)"/>
-    <param from="$(var tracker_setting_path)"/>
-    <param from="$(var data_association_matrix_path)"/>
-  </node>
+  <node_container pkg="rclcpp_component_container_callback_isolated" exec="component_container_callback_isolated" name="multi_object_tracker_container" namespace="">
+    <composable_node pkg="multi_object_tracker" plugin="MultiObjectTracker" name="multi_object_tracker" namespace="">
+      <remap from="input" to="$(var input)"/>
+      <remap from="output" to="$(var output)"/>
+      <param name="world_frame_id" value="$(var world_frame_id)"/>
+      <param name="publish_rate" value="$(var publish_rate)"/>
+      <param name="enable_delay_compensation" value="$(var enable_delay_compensation)"/>
+      <param from="$(var tracker_setting_path)"/>
+      <param from="$(var data_association_matrix_path)"/>
+    </composable_node>
+  </node_container>
 </launch>
