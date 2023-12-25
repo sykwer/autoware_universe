@@ -108,10 +108,10 @@ FusionNode<Msg, ObjType>::FusionNode(
   // subscribers
   std::function<void(const typename Msg::ConstSharedPtr msg)> sub_callback =
     std::bind(&FusionNode::subCallback, this, std::placeholders::_1);
-  sub_ = this->create_subscription<Msg>("input", rclcpp::QoS(1).best_effort(), sub_callback);
+  sub_ = this->create_subscription<Msg>("input", rclcpp::QoS(5), sub_callback);
 
   // publisher
-  pub_ptr_ = this->create_publisher<Msg>("output", rclcpp::QoS{1});
+  pub_ptr_ = this->create_publisher<Msg>("output", rclcpp::QoS{5});
 
   // Set timer
   const auto period_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
