@@ -22,6 +22,7 @@
 #include <autoware_auto_perception_msgs/msg/detected_objects.hpp>
 
 #include <message_filters/subscriber.h>
+#include <message_filters/sync_policies/exact_time.h>
 #include <message_filters/sync_policies/approximate_time.h>
 #include <message_filters/synchronizer.h>
 #include <tf2/LinearMath/Transform.h>
@@ -41,6 +42,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <variant>
 
 namespace object_association
 {
@@ -62,11 +64,17 @@ private:
   message_filters::Subscriber<autoware_auto_perception_msgs::msg::DetectedObjects> object0_sub_{};
   message_filters::Subscriber<autoware_auto_perception_msgs::msg::DetectedObjects> object1_sub_{};
 
-  using SyncPolicy = message_filters::sync_policies::ApproximateTime<
+  using ExactSyncPolicy = message_filters::sync_policies::ExactTime<
     autoware_auto_perception_msgs::msg::DetectedObjects,
     autoware_auto_perception_msgs::msg::DetectedObjects>;
-  using Sync = message_filters::Synchronizer<SyncPolicy>;
-  typename std::shared_ptr<Sync> sync_ptr_;
+  using ExactSync = message_filters::Synchronizer<ExactSyncPolicy>;
+
+  using ApproximateSyncPolicy = message_filters::sync_policies::ApproximateTime<
+    autoware_auto_perception_msgs::msg::DetectedObjects,
+    autoware_auto_perception_msgs::msg::DetectedObjects>;
+  using ApproximateSync = message_filters::Synchronizer<ApproximateSyncPolicy>;
+
+  typename std::variant<std::shared_ptr<ExactSync>, std::shared_ptr<ApproximateSync>> sync_ptr_;
 
   int sync_queue_size_;
   std::unique_ptr<DataAssociation> data_association_;

@@ -76,8 +76,8 @@ ObjectAssociationMergerNode::ObjectAssociationMergerNode(const rclcpp::NodeOptio
 : rclcpp::Node("object_association_merger_node", node_options),
   tf_buffer_(get_clock()),
   tf_listener_(tf_buffer_),
-  object0_sub_(this, "input/object0", rclcpp::QoS{1}.get_rmw_qos_profile()),
-  object1_sub_(this, "input/object1", rclcpp::QoS{1}.get_rmw_qos_profile())
+  object0_sub_(this, "input/object0", rclcpp::QoS{5}.get_rmw_qos_profile()),
+  object1_sub_(this, "input/object1", rclcpp::QoS{5}.get_rmw_qos_profile())
 {
   // Parameters
   base_link_frame_id_ = declare_parameter<std::string>("base_link_frame_id", "base_link");
@@ -112,12 +112,18 @@ ObjectAssociationMergerNode::ObjectAssociationMergerNode(const rclcpp::NodeOptio
   // Create publishers and subscribers
   using std::placeholders::_1;
   using std::placeholders::_2;
-  sync_ptr_ = std::make_shared<Sync>(SyncPolicy(sync_queue_size_), object0_sub_, object1_sub_);
-  sync_ptr_->registerCallback(
-    std::bind(&ObjectAssociationMergerNode::objectsCallback, this, _1, _2));
+
+  bool exact_sync = declare_parameter<bool>("exact_sync");
+  if (exact_sync) {
+    sync_ptr_ = std::make_shared<ExactSync>(ExactSyncPolicy(sync_queue_size_), object0_sub_, object1_sub_);   
+  } else {
+    sync_ptr_ = std::make_shared<ApproximateSync>(ApproximateSyncPolicy(sync_queue_size_), object0_sub_, object1_sub_);
+  }
+
+  std::visit([&](const auto &ptr) { ptr->registerCallback(std::bind(&ObjectAssociationMergerNode::objectsCallback, this, _1, _2)); }, sync_ptr_);
 
   merged_object_pub_ = create_publisher<autoware_auto_perception_msgs::msg::DetectedObjects>(
-    "output/object", rclcpp::QoS{1});
+    "output/object", rclcpp::QoS{5});
 }
 
 void ObjectAssociationMergerNode::objectsCallback(

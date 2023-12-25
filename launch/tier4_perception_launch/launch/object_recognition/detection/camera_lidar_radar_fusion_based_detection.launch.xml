@@ -377,6 +377,7 @@
       <arg name="data_association_matrix_path" value="$(var object_recognition_detection_object_merger_data_association_matrix_param_path)"/>
       <arg name="distance_threshold_list_path" value="$(var object_recognition_detection_object_merger_distance_threshold_list_path)"/>
       <arg name="node_name_suffix" value="0" />
+      <arg name="exact_sync" value="true" />
     </include>
   </group>
 
@@ -392,6 +393,7 @@
       <arg name="data_association_matrix_path" value="$(var object_recognition_detection_object_merger_data_association_matrix_param_path)"/>
       <arg name="distance_threshold_list_path" value="$(var object_recognition_detection_object_merger_distance_threshold_list_path)"/>
       <arg name="node_name_suffix" value="1" />
+      <arg name="exact_sync" value="true" />
     </include>
   </group>
 
@@ -426,5 +428,6 @@
     <arg name="distance_threshold_list_path" value="$(var object_recognition_detection_object_merger_distance_threshold_list_path)"/>
     <arg name="sync_queue_size" value="$(var far_object_merger_sync_queue_size)"/>
     <arg name="node_name_suffix" value="2" />
+    <arg name="exact_sync" value="false" />
   </include>
 </launch>
