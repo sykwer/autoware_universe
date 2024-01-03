@@ -41,14 +41,28 @@ MapUpdateModule::MapUpdateModule(
     node->declare_parameter<double>("dynamic_map_loading_map_radius")),
   lidar_radius_(node->declare_parameter<double>("lidar_radius"))
 {
+  /*
   auto main_sub_opt = rclcpp::SubscriptionOptions();
   main_sub_opt.callback_group = main_callback_group;
+  */
+
+  (void) main_callback_group;
 
   map_callback_group_ = node->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
 
+  /*
   ekf_odom_sub_ = node->create_subscription<nav_msgs::msg::Odometry>(
     "ekf_odom", 100, std::bind(&MapUpdateModule::callback_ekf_odom, this, std::placeholders::_1),
     main_sub_opt);
+  */
+
+  {
+    odom_cb_ = node->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+    auto opt = rclcpp::SubscriptionOptions();
+    opt.callback_group = odom_cb_;
+    ekf_odom_sub_ = node->create_subscription<nav_msgs::msg::Odometry>(
+        "ekf_odom", 100, std::bind(&MapUpdateModule::callback_ekf_odom, this, std::placeholders::_1), opt);
+  }
 
   loaded_pcd_pub_ = node->create_publisher<sensor_msgs::msg::PointCloud2>(
     "debug/loaded_pointcloud_map", rclcpp::QoS{1}.transient_local());
@@ -72,12 +86,17 @@ MapUpdateModule::MapUpdateModule(
 
 void MapUpdateModule::callback_ekf_odom(nav_msgs::msg::Odometry::ConstSharedPtr odom_ptr)
 {
-  current_position_ = odom_ptr->pose.pose.position;
+  // current_position_ = odom_ptr->pose.pose.position;
+
+  {
+    std::lock_guard<std::mutex> lock(mtx_);
+    current_position_bak_ = odom_ptr->pose.pose.position;
+  }
 
   if (last_update_position_ == std::nullopt) {
     return;
   }
-  double distance = norm_xy(current_position_.value(), last_update_position_.value());
+  double distance = norm_xy(current_position_bak_.value(), last_update_position_.value());
   if (distance + lidar_radius_ > dynamic_map_loading_map_radius_) {
     RCLCPP_ERROR_STREAM_THROTTLE(logger_, *clock_, 1, "Dynamic map loading is not keeping up.");
   }
@@ -85,6 +104,11 @@ void MapUpdateModule::callback_ekf_odom(nav_msgs::msg::Odometry::ConstSharedPtr 
 
 void MapUpdateModule::map_update_timer_callback()
 {
+  {
+    std::lock_guard<std::mutex> lock(mtx_);
+    current_position_ = current_position_bak_;
+  }
+
   if (current_position_ == std::nullopt) {
     RCLCPP_ERROR_STREAM_THROTTLE(
       logger_, *clock_, 1,
@@ -146,21 +170,40 @@ void MapUpdateModule::update_ndt(
   }
   const auto exe_start_time = std::chrono::system_clock::now();
 
+  /*
   NormalDistributionsTransform backup_ndt = *ndt_ptr_;
+  */
+
+  auto new_target_cells = ndt_ptr_->deepCopyTargetCells();
+
+  pcl::shared_ptr<pcl::PointCloud<PointTarget>> map_points_ptr_cache(new pcl::PointCloud<PointTarget>);
 
   // Add pcd
   for (const auto & map_to_add : maps_to_add) {
     pcl::shared_ptr<pcl::PointCloud<PointTarget>> map_points_ptr(new pcl::PointCloud<PointTarget>);
     pcl::fromROSMsg(map_to_add.pointcloud, *map_points_ptr);
+    /*
     backup_ndt.addTarget(map_points_ptr, map_to_add.cell_id);
+    */
+    auto resolution = ndt_ptr_->getResolution();
+    new_target_cells->setLeafSize(resolution, resolution, resolution);
+    new_target_cells->setInputCloudAndFilter(map_points_ptr, map_to_add.cell_id);
+
+    map_points_ptr_cache = map_points_ptr;
   }
 
   // Remove pcd
   for (const std::string & map_id_to_remove : map_ids_to_remove) {
+    /*
     backup_ndt.removeTarget(map_id_to_remove);
+    */
+    new_target_cells->removeCloud(map_id_to_remove);
   }
 
+  /*
   backup_ndt.createVoxelKdtree();
+  */
+  new_target_cells->createKdtree();
 
   const auto exe_end_time = std::chrono::system_clock::now();
   const double exe_time =
@@ -168,12 +211,23 @@ void MapUpdateModule::update_ndt(
     1000.0;
   RCLCPP_INFO(logger_, "Time duration for creating new ndt_ptr: %lf [ms]", exe_time);
 
+  /*
   // swap
   (*ndt_ptr_mutex_).lock();
   // ToDo (kminoda): Here negligible NDT copy occurs during the new map loading phase, which should
   // ideally be avoided. But I will leave this for now since I cannot come up with a solution other
   // than using pointer of pointer.
   *ndt_ptr_ = backup_ndt;
+  (*ndt_ptr_mutex_).unlock();
+  */
+
+  (*ndt_ptr_mutex_).lock();
+  ndt_ptr_->updateTargetCells(new_target_cells);
+
+  if (maps_to_add.size() > 0) {
+    ndt_ptr_->setInputTargetTmp(map_points_ptr_cache);
+  }
+
   (*ndt_ptr_mutex_).unlock();
 
   publish_partial_pcd_map();

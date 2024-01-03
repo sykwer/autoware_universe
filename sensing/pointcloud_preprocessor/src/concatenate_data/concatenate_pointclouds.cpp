@@ -104,7 +104,7 @@ PointCloudConcatenationComponent::PointCloudConcatenationComponent(
   // Output Publishers
   {
     pub_output_ = this->create_publisher<PointCloud2>(
-      "output", rclcpp::SensorDataQoS().keep_last(maximum_queue_size_));
+      "output", rclcpp::QoS(maximum_queue_size_));
   }
 
   // Subscribers

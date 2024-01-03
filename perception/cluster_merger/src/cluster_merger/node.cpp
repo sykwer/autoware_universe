@@ -26,8 +26,8 @@ ClusterMergerNode::ClusterMergerNode(const rclcpp::NodeOptions & node_options)
 : rclcpp::Node("cluster_merger_node", node_options),
   tf_buffer_(get_clock()),
   tf_listener_(tf_buffer_),
-  objects0_sub_(this, "input/cluster0", rclcpp::QoS{1}.get_rmw_qos_profile()),
-  objects1_sub_(this, "input/cluster1", rclcpp::QoS{1}.get_rmw_qos_profile()),
+  objects0_sub_(this, "input/cluster0", rclcpp::QoS{5}.get_rmw_qos_profile()),
+  objects1_sub_(this, "input/cluster1", rclcpp::QoS{5}.get_rmw_qos_profile()),
   sync_(SyncPolicy(10), objects0_sub_, objects1_sub_)
 {
   output_frame_id_ = declare_parameter<std::string>("output_frame_id");
@@ -36,7 +36,7 @@ ClusterMergerNode::ClusterMergerNode(const rclcpp::NodeOptions & node_options)
   sync_.registerCallback(std::bind(&ClusterMergerNode::objectsCallback, this, _1, _2));
 
   // Publisher
-  pub_objects_ = create_publisher<DetectedObjectsWithFeature>("~/output/clusters", rclcpp::QoS{1});
+  pub_objects_ = create_publisher<DetectedObjectsWithFeature>("~/output/clusters", rclcpp::QoS{5});
 }
 
 void ClusterMergerNode::objectsCallback(

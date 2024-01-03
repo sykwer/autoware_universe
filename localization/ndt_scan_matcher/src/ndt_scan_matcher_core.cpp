@@ -101,6 +101,8 @@ NDTScanMatcher::NDTScanMatcher()
     declare_parameter("estimate_scores_for_degrounded_scan", false)),
   z_margin_for_ground_removal_(declare_parameter("z_margin_for_ground_removal", 0.8))
 {
+  // Eigen::setNbThreads(1);
+
   (*state_ptr_)["state"] = "Initializing";
   is_activated_ = false;
 
@@ -391,7 +393,11 @@ void NDTScanMatcher::callback_sensor_points(
   const Eigen::Matrix4f initial_pose_matrix =
     pose_to_matrix4f(interpolator.get_current_pose().pose.pose);
   auto output_cloud = std::make_shared<pcl::PointCloud<PointSource>>();
+
+  ndt_ptr_->setMaximumIterations(8);
   ndt_ptr_->align(*output_cloud, initial_pose_matrix);
+  ndt_ptr_->setMaximumIterations(30);
+
   const pclomp::NdtResult ndt_result = ndt_ptr_->getResult();
   (*state_ptr_)["state"] = "Sleeping";
 
@@ -430,6 +436,9 @@ void NDTScanMatcher::callback_sensor_points(
   bool is_ok_converged_param = validate_converged_param(
     ndt_result.transform_probability, ndt_result.nearest_voxel_transformation_likelihood);
   bool is_converged = is_ok_iteration_num && is_ok_converged_param;
+
+  publish_pose(sensor_ros_time, result_pose_msg, is_converged);
+
   static size_t skipping_publish_num = 0;
   if (is_converged) {
     skipping_publish_num = 0;
@@ -447,7 +456,6 @@ void NDTScanMatcher::callback_sensor_points(
     make_float32_stamped(sensor_ros_time, ndt_result.nearest_voxel_transformation_likelihood));
   iteration_num_pub_->publish(make_int32_stamped(sensor_ros_time, ndt_result.iteration_num));
   publish_tf(sensor_ros_time, result_pose_msg);
-  publish_pose(sensor_ros_time, result_pose_msg, is_converged);
   publish_marker(sensor_ros_time, transformation_msg_array);
   publish_initial_to_result_distances(
     sensor_ros_time, result_pose_msg, interpolator.get_current_pose(), interpolator.get_old_pose(),

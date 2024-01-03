@@ -46,57 +46,59 @@
   <arg name="input/image6" default="/image_raw6"/>
   <arg name="input/image7" default="/image_raw7"/>
   <group>
-    <node pkg="image_projection_based_fusion" exec="roi_cluster_fusion_node" name="roi_cluster_fusion" output="screen">
-      <param name="trust_object_iou_mode" value="iou"/>
-      <param name="non_trust_object_iou_mode" value="iou_x"/>
-      <param name="use_cluster_semantic_type" value="false"/>
-      <param name="only_allow_inside_cluster" value="true"/>
-      <param name="roi_scale_factor" value="1.1"/>
-      <param name="iou_threshold" value="0.65"/>
-      <param name="unknown_iou_threshold" value="0.1"/>
-      <param name="rois_number" value="$(var input/rois_number)"/>
-      <param name="remove_unknown" value="$(var remove_unknown)"/>
-      <param name="fusion_distance" value="$(var fusion_distance)"/>
-      <param name="trust_object_distance" value="$(var trust_object_distance)"/>
-      <param from="$(var sync_param_path)"/>
-      <remap from="input" to="$(var input/clusters)"/>
-      <remap from="output" to="$(var output/clusters)"/>
+    <node_container pkg="rclcpp_component_container_callback_isolated" exec="component_container_callback_isolated" name="image_projection_based_fusion_container" namespace="">
+      <composable_node pkg="image_projection_based_fusion" plugin="image_projection_based_fusion::RoiClusterFusionNode" name="roi_cluster_fusion" namespace="">
+        <param name="trust_object_iou_mode" value="iou"/>
+        <param name="non_trust_object_iou_mode" value="iou_x"/>
+        <param name="use_cluster_semantic_type" value="false"/>
+        <param name="only_allow_inside_cluster" value="true"/>
+        <param name="roi_scale_factor" value="1.1"/>
+        <param name="iou_threshold" value="0.65"/>
+        <param name="unknown_iou_threshold" value="0.1"/>
+        <param name="rois_number" value="$(var input/rois_number)"/>
+        <param name="remove_unknown" value="$(var remove_unknown)"/>
+        <param name="fusion_distance" value="$(var fusion_distance)"/>
+        <param name="trust_object_distance" value="$(var trust_object_distance)"/>
+        <param from="$(var sync_param_path)"/>
+        <remap from="input" to="$(var input/clusters)"/>
+        <remap from="output" to="$(var output/clusters)"/>
 
-      <!-- rois, camera and info -->
-      <param name="input/rois0" value="$(var input/rois0)"/>
-      <param name="input/camera_info0" value="$(var input/camera_info0)"/>
-      <param name="input/image0" value="$(var input/image0)"/>
-      <param name="input/rois1" value="$(var input/rois1)"/>
-      <param name="input/camera_info1" value="$(var input/camera_info1)"/>
-      <param name="input/image1" value="$(var input/image1)"/>
-      <param name="input/rois2" value="$(var input/rois2)"/>
-      <param name="input/camera_info2" value="$(var input/camera_info2)"/>
-      <param name="input/image2" value="$(var input/image2)"/>
-      <param name="input/rois3" value="$(var input/rois3)"/>
-      <param name="input/camera_info3" value="$(var input/camera_info3)"/>
-      <param name="input/image3" value="$(var input/image3)"/>
-      <param name="input/rois4" value="$(var input/rois4)"/>
-      <param name="input/camera_info4" value="$(var input/camera_info4)"/>
-      <param name="input/image4" value="$(var input/image4)"/>
-      <param name="input/rois5" value="$(var input/rois5)"/>
-      <param name="input/camera_info5" value="$(var input/camera_info5)"/>
-      <param name="input/image5" value="$(var input/image5)"/>
-      <param name="input/rois6" value="$(var input/rois6)"/>
-      <param name="input/camera_info6" value="$(var input/camera_info6)"/>
-      <param name="input/image6" value="$(var input/image6)"/>
-      <param name="input/rois7" value="$(var input/rois7)"/>
-      <param name="input/camera_info7" value="$(var input/camera_info7)"/>
-      <param name="input/image7" value="$(var input/image7)"/>
+        <!-- rois, camera and info -->
+        <param name="input/rois0" value="$(var input/rois0)"/>
+        <param name="input/camera_info0" value="$(var input/camera_info0)"/>
+        <param name="input/image0" value="$(var input/image0)"/>
+        <param name="input/rois1" value="$(var input/rois1)"/>
+        <param name="input/camera_info1" value="$(var input/camera_info1)"/>
+        <param name="input/image1" value="$(var input/image1)"/>
+        <param name="input/rois2" value="$(var input/rois2)"/>
+        <param name="input/camera_info2" value="$(var input/camera_info2)"/>
+        <param name="input/image2" value="$(var input/image2)"/>
+        <param name="input/rois3" value="$(var input/rois3)"/>
+        <param name="input/camera_info3" value="$(var input/camera_info3)"/>
+        <param name="input/image3" value="$(var input/image3)"/>
+        <param name="input/rois4" value="$(var input/rois4)"/>
+        <param name="input/camera_info4" value="$(var input/camera_info4)"/>
+        <param name="input/image4" value="$(var input/image4)"/>
+        <param name="input/rois5" value="$(var input/rois5)"/>
+        <param name="input/camera_info5" value="$(var input/camera_info5)"/>
+        <param name="input/image5" value="$(var input/image5)"/>
+        <param name="input/rois6" value="$(var input/rois6)"/>
+        <param name="input/camera_info6" value="$(var input/camera_info6)"/>
+        <param name="input/image6" value="$(var input/image6)"/>
+        <param name="input/rois7" value="$(var input/rois7)"/>
+        <param name="input/camera_info7" value="$(var input/camera_info7)"/>
+        <param name="input/image7" value="$(var input/image7)"/>
 
-      <!-- debug -->
-      <param name="debug_mode" value="$(var debug_mode)"/>
-      <param name="filter_scope_minx" value="$(var filter_scope_minx)"/>
-      <param name="filter_scope_maxx" value="$(var filter_scope_maxx)"/>
-      <param name="filter_scope_miny" value="$(var filter_scope_miny)"/>
-      <param name="filter_scope_maxy" value="$(var filter_scope_maxy)"/>
-      <param name="filter_scope_minz" value="$(var filter_scope_minz)"/>
-      <param name="filter_scope_maxz" value="$(var filter_scope_maxz)"/>
-      <param name="image_buffer_size" value="$(var image_buffer_size)"/>
-    </node>
+        <!-- debug -->
+        <param name="debug_mode" value="$(var debug_mode)"/>
+        <param name="filter_scope_minx" value="$(var filter_scope_minx)"/>
+        <param name="filter_scope_maxx" value="$(var filter_scope_maxx)"/>
+        <param name="filter_scope_miny" value="$(var filter_scope_miny)"/>
+        <param name="filter_scope_maxy" value="$(var filter_scope_maxy)"/>
+        <param name="filter_scope_minz" value="$(var filter_scope_minz)"/>
+        <param name="filter_scope_maxz" value="$(var filter_scope_maxz)"/>
+        <param name="image_buffer_size" value="$(var image_buffer_size)"/>
+      </composable_node>
+    </node_container>
   </group>
 </launch>

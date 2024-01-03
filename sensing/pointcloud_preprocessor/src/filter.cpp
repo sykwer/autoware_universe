@@ -90,7 +90,7 @@ pointcloud_preprocessor::Filter::Filter(
   // Set publisher
   {
     pub_output_ = this->create_publisher<PointCloud2>(
-      "output", rclcpp::SensorDataQoS().keep_last(max_queue_size_));
+      "output", rclcpp::QoS(max_queue_size_));
   }
 
   subscribe(filter_name);
@@ -262,9 +262,11 @@ void pointcloud_preprocessor::Filter::input_indices_callback(
     // Convert the cloud into the different frame
     PointCloud2 cloud_transformed;
 
-    if (!tf_buffer_->canTransform(
+    static thread_local bool can_transform = !tf_buffer_->canTransform(
           tf_input_frame_, cloud->header.frame_id, this->now(),
-          rclcpp::Duration::from_seconds(1.0))) {
+                    rclcpp::Duration::from_seconds(1.0));
+
+    if (can_transform) {
       RCLCPP_ERROR_STREAM(
         this->get_logger(), "[input_indices_callback] timeout tf: " << cloud->header.frame_id
                                                                     << "->" << tf_input_frame_);

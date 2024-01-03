@@ -16,13 +16,17 @@
 
 #include <memory>
 
+#include "static_callback_isolated_executor.hpp"
+
 int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
   rclcpp::NodeOptions node_options;
   auto node = std::make_shared<EKFLocalizer>("ekf_localizer", node_options);
 
-  rclcpp::spin(node);
+  auto executor = std::make_shared<StaticCallbackIsolatedExecutor>();
+  executor->add_node(node);
+  executor->spin();
 
   return 0;
 }

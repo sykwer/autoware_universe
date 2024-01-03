@@ -36,42 +36,44 @@
   <arg name="input/image6" default="/image_raw6"/>
   <arg name="input/image7" default="/image_raw7"/>
   <group>
-    <node pkg="image_projection_based_fusion" exec="roi_pointcloud_fusion_node" name="roi_pointcloud_fusion" output="screen">
-      <param name="rois_number" value="$(var input/rois_number)"/>
-      <param name="cluster_2d_tolerance" value="$(var cluster_2d_tolerance)"/>
-      <param name="min_cluster_size" value="$(var min_cluster_size)"/>
-      <param name="fuse_unknown_only" value="$(var fuse_unknown_only)"/>
-      <param from="$(var sync_param_path)"/>
-      <remap from="input" to="$(var input/pointcloud)"/>
-      <remap from="output" to="$(var output/pointcloud)"/>
-      <remap from="output_clusters" to="$(var output_clusters)"/>
-      <remap from="debug/clusters" to="$(var debug/clusters)"/>
+    <node_container pkg="rclcpp_component_container_callback_isolated" exec="component_container_callback_isolated" name="roi_detected_object_fusion_container" namespace="">
+      <composable_node pkg="image_projection_based_fusion" plugin="image_projection_based_fusion::RoiPointCloudFusionNode" name="roi_pointcloud_fusion" namespace="">
+        <param name="rois_number" value="$(var input/rois_number)"/>
+        <param name="cluster_2d_tolerance" value="$(var cluster_2d_tolerance)"/>
+        <param name="min_cluster_size" value="$(var min_cluster_size)"/>
+        <param name="fuse_unknown_only" value="$(var fuse_unknown_only)"/>
+        <param from="$(var sync_param_path)"/>
+        <remap from="input" to="$(var input/pointcloud)"/>
+        <remap from="output" to="$(var output/pointcloud)"/>
+        <remap from="output_clusters" to="$(var output_clusters)"/>
+        <remap from="debug/clusters" to="$(var debug/clusters)"/>
 
-      <!-- rois, camera and info -->
-      <param name="input/rois0" value="$(var input/rois0)"/>
-      <param name="input/camera_info0" value="$(var input/camera_info0)"/>
-      <param name="input/image0" value="$(var input/image0)"/>
-      <param name="input/rois1" value="$(var input/rois1)"/>
-      <param name="input/camera_info1" value="$(var input/camera_info1)"/>
-      <param name="input/image1" value="$(var input/image1)"/>
-      <param name="input/rois2" value="$(var input/rois2)"/>
-      <param name="input/camera_info2" value="$(var input/camera_info2)"/>
-      <param name="input/image2" value="$(var input/image2)"/>
-      <param name="input/rois3" value="$(var input/rois3)"/>
-      <param name="input/camera_info3" value="$(var input/camera_info3)"/>
-      <param name="input/image3" value="$(var input/image3)"/>
-      <param name="input/rois4" value="$(var input/rois4)"/>
-      <param name="input/camera_info4" value="$(var input/camera_info4)"/>
-      <param name="input/image4" value="$(var input/image4)"/>
-      <param name="input/rois5" value="$(var input/rois5)"/>
-      <param name="input/camera_info5" value="$(var input/camera_info5)"/>
-      <param name="input/image5" value="$(var input/image5)"/>
-      <param name="input/rois6" value="$(var input/rois6)"/>
-      <param name="input/camera_info6" value="$(var input/camera_info6)"/>
-      <param name="input/image6" value="$(var input/image6)"/>
-      <param name="input/rois7" value="$(var input/rois7)"/>
-      <param name="input/camera_info7" value="$(var input/camera_info7)"/>
-      <param name="input/image7" value="$(var input/image7)"/>
-    </node>
+        <!-- rois, camera and info -->
+        <param name="input/rois0" value="$(var input/rois0)"/>
+        <param name="input/camera_info0" value="$(var input/camera_info0)"/>
+        <param name="input/image0" value="$(var input/image0)"/>
+        <param name="input/rois1" value="$(var input/rois1)"/>
+        <param name="input/camera_info1" value="$(var input/camera_info1)"/>
+        <param name="input/image1" value="$(var input/image1)"/>
+        <param name="input/rois2" value="$(var input/rois2)"/>
+        <param name="input/camera_info2" value="$(var input/camera_info2)"/>
+        <param name="input/image2" value="$(var input/image2)"/>
+        <param name="input/rois3" value="$(var input/rois3)"/>
+        <param name="input/camera_info3" value="$(var input/camera_info3)"/>
+        <param name="input/image3" value="$(var input/image3)"/>
+        <param name="input/rois4" value="$(var input/rois4)"/>
+        <param name="input/camera_info4" value="$(var input/camera_info4)"/>
+        <param name="input/image4" value="$(var input/image4)"/>
+        <param name="input/rois5" value="$(var input/rois5)"/>
+        <param name="input/camera_info5" value="$(var input/camera_info5)"/>
+        <param name="input/image5" value="$(var input/image5)"/>
+        <param name="input/rois6" value="$(var input/rois6)"/>
+        <param name="input/camera_info6" value="$(var input/camera_info6)"/>
+        <param name="input/image6" value="$(var input/image6)"/>
+        <param name="input/rois7" value="$(var input/rois7)"/>
+        <param name="input/camera_info7" value="$(var input/camera_info7)"/>
+        <param name="input/image7" value="$(var input/image7)"/>
+      </composable_node>
+    </node_container>
   </group>
 </launch>

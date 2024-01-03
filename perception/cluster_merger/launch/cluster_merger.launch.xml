@@ -5,10 +5,12 @@
   <arg name="input/cluster1" default="input/cluster1"/>
   <arg name="output_frame_id" default="base_link"/>
   <!-- Node -->
-  <node pkg="cluster_merger" exec="cluster_merger_node" name="cluster_merger" output="screen">
-    <remap from="~/output/clusters" to="$(var output/clusters)"/>
-    <remap from="input/cluster0" to="$(var input/cluster0)"/>
-    <remap from="input/cluster1" to="$(var input/cluster1)"/>
-    <param name="output_frame_id" value="$(var output_frame_id)"/>
-  </node>
+  <node_container pkg="rclcpp_component_container_callback_isolated" exec="component_container_callback_isolated" name="$(anon object_association_merger_container)" namespace="">
+    <composable_node pkg="cluster_merger" plugin="cluster_merger::ClusterMergerNode" name="cluster_merger" namespace="">
+      <remap from="~/output/clusters" to="$(var output/clusters)"/>
+      <remap from="input/cluster0" to="$(var input/cluster0)"/>
+      <remap from="input/cluster1" to="$(var input/cluster1)"/>
+      <param name="output_frame_id" value="$(var output_frame_id)"/>
+    </composable_node>
+  </node_container>
 </launch>

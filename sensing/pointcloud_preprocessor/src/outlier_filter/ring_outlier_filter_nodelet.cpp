@@ -197,6 +197,7 @@ void RingOutlierFilterComponent::faster_filter(
     "intensity", 1, sensor_msgs::msg::PointField::FLOAT32);
 
   // add processing time for debug
+  /*
   if (debug_publisher_) {
     const double cyclic_time_ms = stop_watch_ptr_->toc("cyclic_time", true);
     const double processing_time_ms = stop_watch_ptr_->toc("processing_time", true);
@@ -205,6 +206,7 @@ void RingOutlierFilterComponent::faster_filter(
     debug_publisher_->publish<tier4_debug_msgs::msg::Float64Stamped>(
       "debug/processing_time_ms", processing_time_ms);
   }
+  */
 }
 
 // TODO(sykwer): Temporary Implementation: Delete this function definition when all the filter nodes

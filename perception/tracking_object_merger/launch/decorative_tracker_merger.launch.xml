@@ -9,13 +9,15 @@
   <arg name="logging_file_path" default="association_log.json"/>
   <arg name="node_param_file_path" default="$(find-pkg-share tracking_object_merger)/config/decorative_tracker_merger.param.yaml"/>
 
-  <node pkg="tracking_object_merger" exec="decorative_tracker_merger" name="$(anon decorative_tracker_merger)" output="screen">
-    <remap from="input/main_object" to="$(var input/main_object)"/>
-    <remap from="input/sub_object" to="$(var input/sub_object)"/>
-    <remap from="output/object" to="$(var output)"/>
-    <param from="$(var data_association_matrix_path)"/>
-    <param from="$(var node_param_file_path)"/>
-    <param name="enable_logging" value="$(var enable_logging)"/>
-    <param name="logging_file_path" value="$(var logging_file_path)"/>
-  </node>
+  <node_container pkg="rclcpp_component_container_callback_isolated" exec="component_container_callback_isolated" name="$(anon object_association_merger_container)" namespace="">
+    <composable_node pkg="tracking_object_merger" plugin="tracking_object_merger::DecorativeTrackerMergerNode" name="decorative_tracker_merger" namespace="">
+      <remap from="input/main_object" to="$(var input/main_object)"/>
+      <remap from="input/sub_object" to="$(var input/sub_object)"/>
+      <remap from="output/object" to="$(var output)"/>
+      <param from="$(var data_association_matrix_path)"/>
+      <param from="$(var node_param_file_path)"/>
+      <param name="enable_logging" value="$(var enable_logging)"/>
+      <param name="logging_file_path" value="$(var logging_file_path)"/>
+    </composable_node>
+  </node_container>
 </launch>

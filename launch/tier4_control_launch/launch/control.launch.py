@@ -297,8 +297,8 @@ def launch_setup(context, *args, **kwargs):
     container = ComposableNodeContainer(
         name="control_container",
         namespace="",
-        package="rclcpp_components",
-        executable=LaunchConfiguration("container_executable"),
+        package="rclcpp_component_container_callback_isolated",
+        executable="component_container_callback_isolated",
         composable_node_descriptions=[
             controller_component,
             lane_departure_component,

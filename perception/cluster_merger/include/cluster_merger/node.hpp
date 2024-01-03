@@ -16,7 +16,7 @@
 #define CLUSTER_MERGER__NODE_HPP_
 
 #include "message_filters/subscriber.h"
-#include "message_filters/sync_policies/approximate_time.h"
+#include <message_filters/sync_policies/exact_time.h>
 #include "message_filters/synchronizer.h"
 #include "rclcpp/rclcpp.hpp"
 #include "tier4_autoware_utils/tier4_autoware_utils.hpp"
@@ -50,7 +50,7 @@ private:
   rclcpp::Subscription<DetectedObjectsWithFeature>::SharedPtr sub_objects_{};
   message_filters::Subscriber<DetectedObjectsWithFeature> objects0_sub_;
   message_filters::Subscriber<DetectedObjectsWithFeature> objects1_sub_;
-  typedef message_filters::sync_policies::ApproximateTime<
+  typedef message_filters::sync_policies::ExactTime<
     DetectedObjectsWithFeature, DetectedObjectsWithFeature>
     SyncPolicy;
   typedef message_filters::Synchronizer<SyncPolicy> Sync;

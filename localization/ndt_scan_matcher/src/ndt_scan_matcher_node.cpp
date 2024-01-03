@@ -16,11 +16,13 @@
 
 #include <rclcpp/rclcpp.hpp>
 
+#include "static_callback_isolated_executor.hpp"
+
 int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
   auto ndt_scan_matcher = std::make_shared<NDTScanMatcher>();
-  rclcpp::executors::MultiThreadedExecutor exec;
+  StaticCallbackIsolatedExecutor exec;
   exec.add_node(ndt_scan_matcher);
   exec.spin();
   rclcpp::shutdown();

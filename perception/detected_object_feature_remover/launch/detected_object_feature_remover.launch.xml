@@ -3,8 +3,10 @@
   <arg name="output"/>
   <arg name="node_name" default="detected_object_feature_remover"/>
 
-  <node pkg="detected_object_feature_remover" exec="detected_object_feature_remover" name="$(var node_name)" output="screen">
-    <remap from="~/input" to="$(var input)"/>
-    <remap from="~/output" to="$(var output)"/>
-  </node>
+  <node_container pkg="rclcpp_component_container_callback_isolated" exec="component_container_callback_isolated" name="detected_object_feature_remover_container" namespace="">
+    <composable_node pkg="detected_object_feature_remover" plugin="detected_object_feature_remover::DetectedObjectFeatureRemover" name="$(var node_name)" namespace="">
+      <remap from="~/input" to="$(var input)"/>
+      <remap from="~/output" to="$(var output)"/>
+    </composable_node>
+  </node_container>
 </launch>

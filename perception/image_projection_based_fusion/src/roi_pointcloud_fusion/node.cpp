@@ -64,11 +64,13 @@ void RoiPointCloudFusionNode::postprocess(__attribute__((unused))
   }
   output_fused_objects_.clear();
   // publish debug cluster
+  /*
   if (cluster_debug_pub_->get_subscription_count() > 0) {
     sensor_msgs::msg::PointCloud2 debug_cluster_msg;
     euclidean_cluster::convertObjectMsg2SensorMsg(output_msg, debug_cluster_msg);
     cluster_debug_pub_->publish(debug_cluster_msg);
   }
+  */
 }
 void RoiPointCloudFusionNode::fuseOnSingleImage(
   const sensor_msgs::msg::PointCloud2 & input_pointcloud_msg,

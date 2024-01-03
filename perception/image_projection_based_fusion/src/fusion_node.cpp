@@ -108,10 +108,10 @@ FusionNode<Msg, ObjType>::FusionNode(
   // subscribers
   std::function<void(const typename Msg::ConstSharedPtr msg)> sub_callback =
     std::bind(&FusionNode::subCallback, this, std::placeholders::_1);
-  sub_ = this->create_subscription<Msg>("input", rclcpp::QoS(1).best_effort(), sub_callback);
+  sub_ = this->create_subscription<Msg>("input", rclcpp::QoS(5), sub_callback);
 
   // publisher
-  pub_ptr_ = this->create_publisher<Msg>("output", rclcpp::QoS{1});
+  pub_ptr_ = this->create_publisher<Msg>("output", rclcpp::QoS{5});
 
   // Set timer
   const auto period_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
@@ -172,6 +172,7 @@ void FusionNode<Msg, Obj>::subCallback(const typename Msg::ConstSharedPtr input_
     std::fill(is_fused_.begin(), is_fused_.end(), false);
 
     // add processing time for debug
+    /*
     if (debug_publisher_) {
       const double cyclic_time_ms = stop_watch_ptr_->toc("cyclic_time", true);
       debug_publisher_->publish<tier4_debug_msgs::msg::Float64Stamped>(
@@ -181,6 +182,7 @@ void FusionNode<Msg, Obj>::subCallback(const typename Msg::ConstSharedPtr input_
         processing_time_ms + stop_watch_ptr_->toc("processing_time", true));
       processing_time_ms = 0;
     }
+    */
   }
 
   std::lock_guard<std::mutex> lock(mutex_);
@@ -245,6 +247,7 @@ void FusionNode<Msg, Obj>::subCallback(const typename Msg::ConstSharedPtr input_
         is_fused_.at(roi_i) = true;
 
         // add timestamp interval for debug
+        /*
         if (debug_publisher_) {
           double timestamp_interval_ms = (matched_stamp - timestamp_nsec) / 1e6;
           debug_publisher_->publish<tier4_debug_msgs::msg::Float64Stamped>(
@@ -253,6 +256,7 @@ void FusionNode<Msg, Obj>::subCallback(const typename Msg::ConstSharedPtr input_
             "debug/roi" + std::to_string(roi_i) + "/timestamp_interval_offset_ms",
             timestamp_interval_ms - input_offset_ms_.at(roi_i));
         }
+        */
       }
     }
   }
@@ -267,6 +271,7 @@ void FusionNode<Msg, Obj>::subCallback(const typename Msg::ConstSharedPtr input_
     sub_std_pair_.second = nullptr;
 
     // add processing time for debug
+    /*
     if (debug_publisher_) {
       const double cyclic_time_ms = stop_watch_ptr_->toc("cyclic_time", true);
       processing_time_ms = stop_watch_ptr_->toc("processing_time", true);
@@ -276,6 +281,7 @@ void FusionNode<Msg, Obj>::subCallback(const typename Msg::ConstSharedPtr input_
         "debug/processing_time_ms", processing_time_ms);
       processing_time_ms = 0;
     }
+    */
   } else {
     sub_std_pair_.first = int64_t(timestamp_nsec);
     sub_std_pair_.second = output_msg;
@@ -312,6 +318,7 @@ void FusionNode<Msg, Obj>::roiCallback(
         *(sub_std_pair_.second));
       is_fused_.at(roi_i) = true;
 
+      /*
       if (debug_publisher_) {
         double timestamp_interval_ms = (timestamp_nsec - sub_std_pair_.first) / 1e6;
         debug_publisher_->publish<tier4_debug_msgs::msg::Float64Stamped>(
@@ -320,6 +327,7 @@ void FusionNode<Msg, Obj>::roiCallback(
           "debug/roi" + std::to_string(roi_i) + "/timestamp_interval_offset_ms",
           timestamp_interval_ms - input_offset_ms_.at(roi_i));
       }
+      */
 
       if (std::count(is_fused_.begin(), is_fused_.end(), true) == static_cast<int>(rois_number_)) {
         timer_->cancel();
@@ -329,6 +337,7 @@ void FusionNode<Msg, Obj>::roiCallback(
         sub_std_pair_.second = nullptr;
 
         // add processing time for debug
+        /*
         if (debug_publisher_) {
           const double cyclic_time_ms = stop_watch_ptr_->toc("cyclic_time", true);
           debug_publisher_->publish<tier4_debug_msgs::msg::Float64Stamped>(
@@ -338,6 +347,7 @@ void FusionNode<Msg, Obj>::roiCallback(
             processing_time_ms + stop_watch_ptr_->toc("processing_time", true));
           processing_time_ms = 0;
         }
+        */
       }
       processing_time_ms = processing_time_ms + stop_watch_ptr_->toc("processing_time", true);
       return;
@@ -367,6 +377,7 @@ void FusionNode<Msg, Obj>::timer_callback()
       publish(*(sub_std_pair_.second));
 
       // add processing time for debug
+      /*
       if (debug_publisher_) {
         const double cyclic_time_ms = stop_watch_ptr_->toc("cyclic_time", true);
         debug_publisher_->publish<tier4_debug_msgs::msg::Float64Stamped>(
@@ -376,6 +387,7 @@ void FusionNode<Msg, Obj>::timer_callback()
           processing_time_ms + stop_watch_ptr_->toc("processing_time", true));
         processing_time_ms = 0;
       }
+      */
     }
     std::fill(is_fused_.begin(), is_fused_.end(), false);
     sub_std_pair_.second = nullptr;
