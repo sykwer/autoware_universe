@@ -212,14 +212,14 @@ void PidLongitudinalController::setTrajectory(
   const autoware_auto_planning_msgs::msg::Trajectory & msg)
 {
   if (!longitudinal_utils::isValidTrajectory(msg)) {
-    RCLCPP_ERROR_THROTTLE(
-      node_->get_logger(), *node_->get_clock(), 3000, "received invalid trajectory. ignore.");
+    // RCLCPP_ERROR_THROTTLE(
+    //   node_->get_logger(), *node_->get_clock(), 3000, "received invalid trajectory. ignore.");
     return;
   }
 
   if (msg.points.size() < 2) {
-    RCLCPP_WARN_THROTTLE(
-      node_->get_logger(), *node_->get_clock(), 3000, "Unexpected trajectory size < 2. Ignored.");
+    // RCLCPP_WARN_THROTTLE(
+    //   node_->get_logger(), *node_->get_clock(), 3000, "Unexpected trajectory size < 2. Ignored.");
     return;
   }
 
@@ -378,7 +378,7 @@ trajectory_follower::LongitudinalOutput PidLongitudinalController::run(
     m_prev_raw_ctrl_cmd = raw_ctrl_cmd;
     const auto cmd_msg =
       createCtrlCmdMsg(raw_ctrl_cmd, control_data.current_motion.vel);  // create control command
-    publishDebugData(raw_ctrl_cmd, control_data);                       // publish debug data
+    // publishDebugData(raw_ctrl_cmd, control_data);                       // publish debug data
     trajectory_follower::LongitudinalOutput output;
     output.control_cmd = cmd_msg;
     return output;
@@ -396,10 +396,10 @@ trajectory_follower::LongitudinalOutput PidLongitudinalController::run(
   output.control_cmd = cmd_msg;
 
   // publish debug data
-  publishDebugData(ctrl_cmd, control_data);
+  // publishDebugData(ctrl_cmd, control_data);
 
   // diagnostic
-  diagnostic_updater_.force_update();
+  // diagnostic_updater_.force_update();
 
   return output;
 }
@@ -469,9 +469,11 @@ PidLongitudinalController::Motion PidLongitudinalController::calcEmergencyCtrlCm
   const double acc =
     longitudinal_utils::applyDiffLimitFilter(p.acc, m_prev_raw_ctrl_cmd.acc, dt, p.jerk);
 
+  /*
   RCLCPP_ERROR_THROTTLE(
     node_->get_logger(), *node_->get_clock(), 3000, "[Emergency stop] vel: %3.3f, acc: %3.3f", vel,
     acc);
+  */
 
   return Motion{vel, acc};
 }
@@ -526,7 +528,7 @@ void PidLongitudinalController::updateControlState(const ControlData & control_d
   };
 
   const auto info_throttle = [this](const auto & s) {
-    RCLCPP_INFO_SKIPFIRST_THROTTLE(node_->get_logger(), *node_->get_clock(), 5000, "%s", s);
+    // RCLCPP_INFO_SKIPFIRST_THROTTLE(node_->get_logger(), *node_->get_clock(), 5000, "%s", s);
   };
 
   // if current operation mode is not autonomous mode, then change state to stopped
@@ -582,6 +584,7 @@ void PidLongitudinalController::updateControlState(const ControlData & control_d
 
   // in STOPPED state
   if (m_control_state == ControlState::STOPPED) {
+    /*
     // -- debug print --
     if (has_nonzero_target_vel && !departure_condition_from_stopped) {
       info_throttle("target speed > 0, but departure condition is not met. Keep STOPPED.");
@@ -590,6 +593,7 @@ void PidLongitudinalController::updateControlState(const ControlData & control_d
       info_throttle("target speed > 0, but keep stop condition is met. Keep STOPPED.");
     }
     // ---------------
+    */
 
     if (keep_stopped_condition) {
       return changeState(ControlState::STOPPED);

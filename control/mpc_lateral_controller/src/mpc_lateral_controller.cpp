@@ -265,8 +265,8 @@ trajectory_follower::LateralOutput MpcLateralController::run(
     ctrl_cmd.steering_tire_angle += steering_offset_->getOffset();
   }
 
-  publishPredictedTraj(predicted_traj);
-  publishDebugValues(debug_values);
+  // (tmp delete) publishPredictedTraj(predicted_traj);
+  // publishDebugValues(debug_values);
 
   const auto createLateralOutput = [this](const auto & cmd, const bool is_mpc_solved) {
     trajectory_follower::LateralOutput output;
@@ -293,7 +293,7 @@ trajectory_follower::LateralOutput MpcLateralController::run(
   }
 
   if (!is_mpc_solved) {
-    warn_throttle("MPC is not solved. publish 0 velocity.");
+    // warn_throttle("MPC is not solved. publish 0 velocity.");
     ctrl_cmd = getStopControlCommand();
   }
 
@@ -324,15 +324,15 @@ bool MpcLateralController::isReady(const trajectory_follower::InputData & input_
   m_current_steering = input_data.current_steering;
 
   if (!m_mpc.hasVehicleModel()) {
-    info_throttle("MPC does not have a vehicle model");
+    //info_throttle("MPC does not have a vehicle model");
     return false;
   }
   if (!m_mpc.hasQPSolver()) {
-    info_throttle("MPC does not have a QP solver");
+    //info_throttle("MPC does not have a QP solver");
     return false;
   }
   if (m_mpc.m_reference_trajectory.empty()) {
-    info_throttle("trajectory size is zero.");
+    //info_throttle("trajectory size is zero.");
     return false;
   }
 
@@ -344,12 +344,12 @@ void MpcLateralController::setTrajectory(const Trajectory & msg)
   m_current_trajectory = msg;
 
   if (msg.points.size() < 3) {
-    RCLCPP_DEBUG(node_->get_logger(), "received path size is < 3, not enough.");
+    // RCLCPP_DEBUG(node_->get_logger(), "received path size is < 3, not enough.");
     return;
   }
 
   if (!isValidTrajectory(msg)) {
-    RCLCPP_ERROR(node_->get_logger(), "Trajectory is invalid!! stop computing.");
+    // RCLCPP_ERROR(node_->get_logger(), "Trajectory is invalid!! stop computing.");
     return;
   }
 

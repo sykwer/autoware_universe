@@ -3,7 +3,7 @@
   <arg name="input_trajectory" default="/planning/scenario_planning/motion_velocity_smoother/trajectory"/>
   <arg name="output_trajectory" default="/planning/scenario_planning/trajectory"/>
 
-  <node_container pkg="rclcpp_component_container_callback_isolated" exec="component_container_callback_isolated" name="planning_validator_container" namespace="">
+  <load_composable_node target="planning_container">
     <composable_node pkg="planning_validator" plugin="planning_validator::PlanningValidator" name="planning_validator" namespace="">
       <!-- load config a file -->
       <param from="$(var planning_validator_param_path)"/>
@@ -14,5 +14,5 @@
       <remap from="~/output/trajectory" to="$(var output_trajectory)"/>
       <remap from="~/output/validation_status" to="~/validation_status"/>
     </composable_node>
-  </node_container>
+  </load_composable_node>
 </launch>

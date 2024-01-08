@@ -39,6 +39,11 @@ public:
   void publish();
   void update(const AckermannControlCommand & control);
 
+  bool prepare_is_paused_msg(IsPaused::Message &msg);
+  void publish_is_paused(IsPaused::Message &msg);
+  bool prepare_is_start_requested_msg(IsStartRequested::Message &msg);
+  void publish_is_start_requested(IsStartRequested::Message &msg);
+
 private:
   bool is_paused_;
   bool is_start_requested_;

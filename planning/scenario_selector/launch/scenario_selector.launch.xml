@@ -9,7 +9,7 @@
   <arg name="output_scenario"/>
   <arg name="output_trajectory"/>
 
-  <node_container pkg="rclcpp_component_container_callback_isolated" exec="component_container_callback_isolated" name="scenario_selector_container" namespace="">
+  <load_composable_node target="planning_container">
     <composable_node pkg="scenario_selector" plugin="ScenarioSelectorNode" name="scenario_selector" namespace="">
       <remap from="input/lane_driving/trajectory" to="$(var input_lane_driving_trajectory)"/>
       <remap from="input/parking/trajectory" to="$(var input_parking_trajectory)"/>
@@ -27,5 +27,5 @@
       <param name="th_stopped_time_sec" value="1.0"/>
       <param name="th_stopped_velocity_mps" value="0.01"/>
     </composable_node>
-  </node_container>
+  </load_composable_node>
 </launch>

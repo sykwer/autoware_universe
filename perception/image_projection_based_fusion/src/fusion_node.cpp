@@ -167,7 +167,15 @@ void FusionNode<Msg, Obj>::subCallback(const typename Msg::ConstSharedPtr input_
     stop_watch_ptr_->toc("processing_time", true);
     timer_->cancel();
     postprocess(*(sub_std_pair_.second));
-    publish(*(sub_std_pair_.second));
+
+    if (std::string(get_name()) == "pointpainting") {
+      publish(*(sub_std_pair_.second));
+    } else {
+      static int ignore_count = 0;
+      ignore_count++;
+      RCLCPP_WARN(get_logger(), "sykwer: ignore count in subCallback: %d", ignore_count);
+    }
+
     sub_std_pair_.second = nullptr;
     std::fill(is_fused_.begin(), is_fused_.end(), false);
 
@@ -332,7 +340,15 @@ void FusionNode<Msg, Obj>::roiCallback(
       if (std::count(is_fused_.begin(), is_fused_.end(), true) == static_cast<int>(rois_number_)) {
         timer_->cancel();
         postprocess(*(sub_std_pair_.second));
-        publish(*(sub_std_pair_.second));
+
+        if (std::string(get_name()) == "pointpainting") {
+          publish(*(sub_std_pair_.second));
+        } else {
+          static int ignore_count = 0;
+          ignore_count++;
+          RCLCPP_WARN(get_logger(), "sykwer: ignore count in roiCallback: %d", ignore_count);
+        }
+
         std::fill(is_fused_.begin(), is_fused_.end(), false);
         sub_std_pair_.second = nullptr;
 
@@ -374,7 +390,14 @@ void FusionNode<Msg, Obj>::timer_callback()
       stop_watch_ptr_->toc("processing_time", true);
 
       postprocess(*(sub_std_pair_.second));
-      publish(*(sub_std_pair_.second));
+
+      if (std::string(get_name()) == "pointpainting") {
+        publish(*(sub_std_pair_.second));
+      } else {
+        static int ignore_count = 0;
+        ignore_count++;
+        RCLCPP_WARN(get_logger(), "sykwer: ignore count in timerCallback: %d", ignore_count);
+      }
 
       // add processing time for debug
       /*

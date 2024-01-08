@@ -9,7 +9,7 @@
   <arg name="logging_file_path" default="association_log.json"/>
   <arg name="node_param_file_path" default="$(find-pkg-share tracking_object_merger)/config/decorative_tracker_merger.param.yaml"/>
 
-  <node_container pkg="rclcpp_component_container_callback_isolated" exec="component_container_callback_isolated" name="$(anon object_association_merger_container)" namespace="">
+  <load_composable_node target="pointcloud_container2">
     <composable_node pkg="tracking_object_merger" plugin="tracking_object_merger::DecorativeTrackerMergerNode" name="decorative_tracker_merger" namespace="">
       <remap from="input/main_object" to="$(var input/main_object)"/>
       <remap from="input/sub_object" to="$(var input/sub_object)"/>
@@ -19,5 +19,5 @@
       <param name="enable_logging" value="$(var enable_logging)"/>
       <param name="logging_file_path" value="$(var logging_file_path)"/>
     </composable_node>
-  </node_container>
+  </load_composable_node>
 </launch>

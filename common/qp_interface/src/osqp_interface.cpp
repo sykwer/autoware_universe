@@ -191,7 +191,7 @@ void OSQPInterface::updatePolish(const bool polish)
 void OSQPInterface::updatePolishRefinementIteration(const int polish_refine_iter)
 {
   if (polish_refine_iter < 0) {
-    std::cerr << "Polish refinement iterations must be positive" << std::endl;
+    // std::cerr << "Polish refinement iterations must be positive" << std::endl;
     return;
   }
 
@@ -204,7 +204,7 @@ void OSQPInterface::updatePolishRefinementIteration(const int polish_refine_iter
 void OSQPInterface::updateCheckTermination(const int check_termination)
 {
   if (check_termination < 0) {
-    std::cerr << "Check termination must be positive" << std::endl;
+    // std::cerr << "Check termination must be positive" << std::endl;
     return;
   }
 
@@ -228,7 +228,7 @@ bool OSQPInterface::setPrimalVariables(const std::vector<double> & primal_variab
 
   const auto result = osqp_warm_start_x(m_work.get(), primal_variables.data());
   if (result != 0) {
-    std::cerr << "Failed to set primal variables for warm start" << std::endl;
+    // std::cerr << "Failed to set primal variables for warm start" << std::endl;
     return false;
   }
 
@@ -243,7 +243,7 @@ bool OSQPInterface::setDualVariables(const std::vector<double> & dual_variables)
 
   const auto result = osqp_warm_start_y(m_work.get(), dual_variables.data());
   if (result != 0) {
-    std::cerr << "Failed to set dual variables for warm start" << std::endl;
+    // std::cerr << "Failed to set dual variables for warm start" << std::endl;
     return false;
   }
 

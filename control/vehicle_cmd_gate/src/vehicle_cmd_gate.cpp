@@ -46,7 +46,7 @@ const char * getGateModeName(const GateMode::_data_type & gate_mode)
 }  // namespace
 
 VehicleCmdGate::VehicleCmdGate(const rclcpp::NodeOptions & node_options)
-: Node("vehicle_cmd_gate", node_options), is_engaged_(false), updater_(this)
+: Node("vehicle_cmd_gate", node_options), is_engaged_(false)/*, updater_(this)*/
 {
   using std::placeholders::_1;
   using std::placeholders::_2;
@@ -214,11 +214,13 @@ VehicleCmdGate::VehicleCmdGate(const rclcpp::NodeOptions & node_options)
     std::bind(&VehicleCmdGate::onClearExternalEmergencyStopService, this, _1, _2, _3));
 
   // Diagnostics Updater
+  /*
   updater_.setHardwareID("vehicle_cmd_gate");
   updater_.add("heartbeat", [](auto & stat) {
     stat.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "Alive");
   });
   updater_.add("emergency_stop_operation", this, &VehicleCmdGate::checkExternalEmergencyStop);
+  */
 
   // Pause interface
   adapi_pause_ = std::make_unique<AdapiPauseInterface>(this);
@@ -232,6 +234,90 @@ VehicleCmdGate::VehicleCmdGate(const rclcpp::NodeOptions & node_options)
     rclcpp::create_timer(this, get_clock(), period_ns, std::bind(&VehicleCmdGate::onTimer, this));
   timer_pub_status_ = rclcpp::create_timer(
     this, get_clock(), period_ns, std::bind(&VehicleCmdGate::publishStatus, this));
+
+  cg_publish_timer_ = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+  publish_timer_ = rclcpp::create_timer(this, get_clock(), period_ns / 10, std::bind(&VehicleCmdGate::publishCachedMsg, this), cg_publish_timer_);
+}
+
+void VehicleCmdGate::publishCachedMsg() {
+  /*
+  static int count = 0;
+  count++;
+  if (count % 10 == 0) {
+    updater_.force_update();
+  }
+  */
+
+  CachedMsgs0 msgs0;
+  CachedMsgs1 msgs1;
+  CachedMsgs2 msgs2;
+  CachedMsgs3 msgs3;
+  bool msgs0_ready;
+  bool msgs1_ready;
+  bool msgs2_ready;
+  bool msgs3_ready;
+
+  {
+    std::lock_guard<std::mutex> lock(mtx_);
+
+    msgs0 = msgs0_;
+    msgs0_ready = msgs0_ready_;
+    msgs0_ready_ = false;
+
+    msgs1 = msgs1_;
+    msgs1_ready = msgs1_ready_;
+    msgs1_ready_ = false;
+
+    msgs2 = msgs2_;
+    msgs2_ready = msgs2_ready_;
+    msgs2_ready_ = false;
+
+    msgs3 = msgs3_;
+    msgs3_ready = msgs3_ready_;
+    msgs3_ready_ = false;
+  }
+
+  // publishStatus()
+  if (msgs0_ready) {
+    gate_mode_pub_->publish(msgs0.current_gate_mode);
+    engage_pub_->publish(msgs0.autoware_engage);
+    pub_external_emergency_->publish(msgs0.external_emergency);
+    operation_mode_pub_->publish(msgs0.current_operation_mode);
+
+    if (msgs0.is_paused_ready) {
+      adapi_pause_->publish_is_paused(msgs0.is_paused);
+    }
+
+    if (msgs0.is_start_requested_ready) {
+      adapi_pause_->publish_is_start_requested(msgs0.is_start_requested);
+    }
+
+    if (msgs0.is_stopped_ready) {
+      moderate_stop_interface_->publish_is_stopped(msgs0.is_stopped);
+    }
+  }
+
+  // onTimer()
+  if (msgs1_ready) {
+    turn_indicator_cmd_pub_->publish(msgs1.turn_indicator);
+    hazard_light_cmd_pub_->publish(msgs1.hazard_light);
+    gear_cmd_pub_->publish(msgs1.gear);
+  }
+
+  // onTimer() -> publishEmergencyStopControlCommands()
+  if (msgs2_ready) {
+    vehicle_cmd_emergency_pub_->publish(msgs2.vehicle_cmd_emergency);
+    control_cmd_pub_->publish(msgs2.control_cmd);
+    turn_indicator_cmd_pub_->publish(msgs2.turn_indicator);
+    hazard_light_cmd_pub_->publish(msgs2.hazard_light);
+    gear_cmd_pub_->publish(msgs2.gear);
+  }
+
+  // onAutoCtrlCmd() -> publishControlCommands() -> filterControlCommand()
+  if (msgs3_ready) {
+    is_filter_activated_pub_->publish(msgs3.is_filter_activated);
+    filter_activated_marker_pub_->publish(msgs3.marker_array);
+  }
 }
 
 bool VehicleCmdGate::isHeartbeatTimeout(
@@ -302,10 +388,10 @@ void VehicleCmdGate::onEmergencyCtrlCmd(AckermannControlCommand::ConstSharedPtr 
 
 void VehicleCmdGate::onTimer()
 {
-  updater_.force_update();
+  // updater_.force_update();
 
   if (!isDataReady()) {
-    RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 5000, "waiting topics...");
+    // RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 5000, "waiting topics...");
     return;
   }
 
@@ -315,8 +401,8 @@ void VehicleCmdGate::onTimer()
       emergency_state_heartbeat_received_time_, system_emergency_heartbeat_timeout_);
 
     if (is_emergency_state_heartbeat_timeout_) {
-      RCLCPP_WARN_THROTTLE(
-        get_logger(), *get_clock(), 5000 /*ms*/, "system_emergency heartbeat is timeout.");
+      // RCLCPP_WARN_THROTTLE(
+      //   get_logger(), *get_clock(), 5000 /*ms*/, "system_emergency heartbeat is timeout.");
       publishEmergencyStopControlCommands();
       return;
     }
@@ -328,8 +414,8 @@ void VehicleCmdGate::onTimer()
       external_emergency_stop_heartbeat_received_time_, external_emergency_stop_heartbeat_timeout_);
 
     if (is_external_emergency_stop_heartbeat_timeout_) {
-      RCLCPP_WARN_THROTTLE(
-        get_logger(), *get_clock(), 5000 /*ms*/, "external_emergency_stop heartbeat is timeout.");
+      // RCLCPP_WARN_THROTTLE(
+      //   get_logger(), *get_clock(), 5000 /*ms*/, "external_emergency_stop heartbeat is timeout.");
       is_external_emergency_stop_ = true;
     }
   }
@@ -337,9 +423,9 @@ void VehicleCmdGate::onTimer()
   // Check external emergency stop
   if (is_external_emergency_stop_) {
     if (!is_external_emergency_stop_heartbeat_timeout_) {
-      RCLCPP_INFO_THROTTLE(
-        get_logger(), *get_clock(), 5000 /*ms*/,
-        "Please call `clear_external_emergency_stop` service to clear state.");
+      // RCLCPP_INFO_THROTTLE(
+      //   get_logger(), *get_clock(), 5000 /*ms*/,
+      //   "Please call `clear_external_emergency_stop` service to clear state.");
     }
 
     publishEmergencyStopControlCommands();
@@ -374,10 +460,13 @@ void VehicleCmdGate::onTimer()
     }
   }
 
-  // Publish topics
-  turn_indicator_cmd_pub_->publish(turn_indicator);
-  hazard_light_cmd_pub_->publish(hazard_light);
-  gear_cmd_pub_->publish(gear);
+  {
+    std::lock_guard lock(mtx_);
+    msgs1_.turn_indicator = turn_indicator;
+    msgs1_.hazard_light = hazard_light;
+    msgs1_.gear = gear;
+    msgs1_ready_ = true;
+  }
 }
 
 void VehicleCmdGate::publishControlCommands(const Commands & commands)
@@ -412,8 +501,8 @@ void VehicleCmdGate::publishControlCommands(const Commands & commands)
 
   // Check emergency
   if (use_emergency_handling_ && is_system_emergency_) {
-    RCLCPP_WARN_THROTTLE(
-      get_logger(), *get_clock(), std::chrono::milliseconds(1000).count(), "Emergency!");
+    // RCLCPP_WARN_THROTTLE(
+    //   get_logger(), *get_clock(), std::chrono::milliseconds(1000).count(), "Emergency!");
     filtered_commands.control = emergency_commands_.control;
     filtered_commands.gear = emergency_commands_.gear;  // tmp
   }
@@ -439,8 +528,8 @@ void VehicleCmdGate::publishControlCommands(const Commands & commands)
   vehicle_cmd_emergency.stamp = filtered_commands.control.stamp;
 
   // Publish commands
-  vehicle_cmd_emergency_pub_->publish(vehicle_cmd_emergency);
   control_cmd_pub_->publish(filtered_commands.control);
+  vehicle_cmd_emergency_pub_->publish(vehicle_cmd_emergency);
   adapi_pause_->publish();
   moderate_stop_interface_->publish();
 
@@ -480,12 +569,15 @@ void VehicleCmdGate::publishEmergencyStopControlCommands()
   vehicle_cmd_emergency.stamp = stamp;
   vehicle_cmd_emergency.emergency = true;
 
-  // Publish topics
-  vehicle_cmd_emergency_pub_->publish(vehicle_cmd_emergency);
-  control_cmd_pub_->publish(control_cmd);
-  turn_indicator_cmd_pub_->publish(turn_indicator);
-  hazard_light_cmd_pub_->publish(hazard_light);
-  gear_cmd_pub_->publish(gear);
+  {
+    std::lock_guard<std::mutex> lock(mtx_);
+    msgs2_.vehicle_cmd_emergency = vehicle_cmd_emergency;
+    msgs2_.control_cmd = control_cmd;
+    msgs2_.turn_indicator = turn_indicator;
+    msgs2_.hazard_light = hazard_light;
+    msgs2_.gear = gear;
+    msgs2_ready_ = true;
+  }
 }
 
 void VehicleCmdGate::publishStatus()
@@ -502,12 +594,30 @@ void VehicleCmdGate::publishStatus()
   external_emergency.stamp = stamp;
   external_emergency.emergency = is_external_emergency_stop_;
 
-  gate_mode_pub_->publish(current_gate_mode_);
-  engage_pub_->publish(autoware_engage);
-  pub_external_emergency_->publish(external_emergency);
-  operation_mode_pub_->publish(current_operation_mode_);
-  adapi_pause_->publish();
-  moderate_stop_interface_->publish();
+  IsPaused::Message is_paused_msg;
+  bool is_paused_ready = adapi_pause_->prepare_is_paused_msg(is_paused_msg);
+  IsStartRequested::Message is_start_requested_msg;
+  bool is_start_requested_ready = adapi_pause_->prepare_is_start_requested_msg(is_start_requested_msg);
+
+  IsStopped::Message is_stopped_msg;
+  bool is_stopped_ready = moderate_stop_interface_->prepare_is_stopped_msg(is_stopped_msg);
+
+  {
+    std::lock_guard<std::mutex> lock(mtx_);
+    msgs0_.current_gate_mode = current_gate_mode_;
+    msgs0_.autoware_engage = autoware_engage;
+    msgs0_.external_emergency = external_emergency;
+    msgs0_.current_operation_mode = current_operation_mode_;
+
+    msgs0_.is_paused_ready = is_paused_ready;
+    msgs0_.is_paused = is_paused_msg;
+    msgs0_.is_start_requested_ready = is_start_requested_ready;
+    msgs0_.is_start_requested = is_start_requested_msg;
+    msgs0_.is_stopped_ready = is_stopped_ready;
+    msgs0_.is_stopped = is_stopped_msg;
+
+    msgs0_ready_ = true;
+  }
 }
 
 AckermannControlCommand VehicleCmdGate::filterControlCommand(const AckermannControlCommand & in)
@@ -569,8 +679,14 @@ AckermannControlCommand VehicleCmdGate::filterControlCommand(const AckermannCont
   filter_on_transition_.setPrevCmd(prev_values);
 
   is_filter_activated.stamp = now();
-  is_filter_activated_pub_->publish(is_filter_activated);
-  filter_activated_marker_pub_->publish(createMarkerArray(is_filter_activated));
+
+  {
+    std::lock_guard<std::mutex> lock(mtx_);
+
+    msgs3_.is_filter_activated = is_filter_activated;
+    msgs3_.marker_array = createMarkerArray(is_filter_activated);
+    msgs3_ready_ = true;
+  }
 
   return out;
 }

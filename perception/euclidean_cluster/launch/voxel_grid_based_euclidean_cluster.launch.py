@@ -70,31 +70,31 @@ def launch_setup(context, *args, **kwargs):
         parameters=[load_composable_node_param("voxel_grid_based_euclidean_param_path")],
     )
 
-    container = ComposableNodeContainer(
-        name="euclidean_cluster_container",
-        package="rclcpp_component_container_callback_isolated",
-        namespace=ns,
-        executable="component_container_callback_isolated",
-        composable_node_descriptions=[],
-        output="screen",
-    )
+    #container = ComposableNodeContainer(
+    #    name="euclidean_cluster_container",
+    #    package="rclcpp_component_container_callback_isolated",
+    #    namespace=ns,
+    #    executable="component_container_callback_isolated",
+    #    composable_node_descriptions=[],
+    #    output="screen",
+    #)
 
     use_low_height_pointcloud_loader = LoadComposableNodes(
         composable_node_descriptions=[
             low_height_cropbox_filter_component,
             use_low_height_euclidean_component,
         ],
-        target_container=container,
+        target_container="pointcloud_container",
         condition=IfCondition(LaunchConfiguration("use_low_height_cropbox")),
     )
 
     disuse_low_height_pointcloud_loader = LoadComposableNodes(
         composable_node_descriptions=[disuse_low_height_euclidean_component],
-        target_container=container,
+        target_container="pointcloud_container",
         condition=UnlessCondition(LaunchConfiguration("use_low_height_cropbox")),
     )
     return [
-        container,
+        #container,
         use_low_height_pointcloud_loader,
         disuse_low_height_pointcloud_loader,
     ]

@@ -335,7 +335,7 @@ bool JerkFilteredSmoother::apply(
   if (VERBOSE_TRAJECTORY_VELOCITY) {
     const auto s_output = trajectory_utils::calcArclengthArray(output);
 
-    std::cerr << "\n\n" << std::endl;
+    // std::cerr << "\n\n" << std::endl;
     for (size_t i = 0; i < N; ++i) {
       const auto v_opt = output.at(i).longitudinal_velocity_mps;
       const auto a_opt = output.at(i).acceleration_mps2;

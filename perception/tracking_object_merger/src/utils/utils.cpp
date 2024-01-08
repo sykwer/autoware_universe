@@ -44,8 +44,10 @@ TrackedObject linearInterpolationForTrackedObject(
 
   // weight check (0 <= weight <= 1)
   if (weight < 0 || weight > 1) {
+    /*
     std::cerr << "weight must be 0 <= weight <= 1 in linearInterpolationForTrackedObject function."
               << std::endl;
+              */
     return obj1;
   }
 
@@ -103,8 +105,10 @@ TrackedObject linearInterpolationForTrackedObject(
       // (TODO) implement
     } else {
       // when type is unknown, print warning and do nothing
+      /*
       std::cerr << "unknown shape type in linearInterpolationForTrackedObject function."
                 << std::endl;
+                */
       return output;
     }
   }
@@ -290,7 +294,9 @@ autoware_auto_perception_msgs::msg::TrackedObjectKinematics objectKinematicsVXMe
     output_kinematics.twist_with_covariance.covariance[0] = 1.0 / (main_vx_weight + sub_vx_weight);
     return output_kinematics;
   } else {
+    /*
     std::cerr << "unknown merge policy in objectKinematicsMerger function." << std::endl;
+    */
     return output_kinematics;
   }
   return output_kinematics;
@@ -313,7 +319,9 @@ TrackedObject objectClassificationMerger(
     }
     return dummy_obj;
   } else {
+    /*
     std::cerr << "unknown merge policy in objectClassificationMerger function." << std::endl;
+    */
     return main_obj;
   }
 }
@@ -328,7 +336,7 @@ float probabilityMerger(const float main_prob, const float sub_prob, const Merge
   } else if (policy == MergePolicy::FUSION) {
     return static_cast<float>(mean(main_prob, sub_prob));
   } else {
-    std::cerr << "unknown merge policy in probabilityMerger function." << std::endl;
+    // std::cerr << "unknown merge policy in probabilityMerger function." << std::endl;
     return main_prob;
   }
 }
@@ -369,11 +377,11 @@ autoware_auto_perception_msgs::msg::Shape shapeMerger(
       return output_shape;
     } else {
       // when type is unknown, print warning and do nothing
-      std::cerr << "unknown shape type in shapeMerger function." << std::endl;
+      // std::cerr << "unknown shape type in shapeMerger function." << std::endl;
       return output_shape;
     }
   } else {
-    std::cerr << "unknown merge policy in shapeMerger function." << std::endl;
+    // std::cerr << "unknown merge policy in shapeMerger function." << std::endl;
     return output_shape;
   }
 }

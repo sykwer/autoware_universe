@@ -79,7 +79,7 @@ bool is_valid_precision_string(const std::string & precision)
       message << s << ", ";
     }
     message << "] (case sensitive)" << std::endl;
-    std::cerr << message.str();
+    // std::s << message.str();
     return false;
   } else {
     return true;

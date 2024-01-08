@@ -304,6 +304,8 @@ void OccupancyGridMapOutlierFilterComponent::onOccupancyGridMapAndPointCloud2(
     }
     pointcloud_pub_->publish(std::move(base_link_frame_filtered_pc_ptr));
   }
+
+  /*
   if (debugger_ptr_) {
     debugger_ptr_->publishHighConfidence(high_confidence_pc, ogm_frame_pc.header);
     debugger_ptr_->publishLowConfidence(filtered_low_confidence_pc, ogm_frame_pc.header);
@@ -319,6 +321,7 @@ void OccupancyGridMapOutlierFilterComponent::onOccupancyGridMapAndPointCloud2(
     debug_publisher_->publish<tier4_debug_msgs::msg::Float64Stamped>(
       "debug/processing_time_ms", processing_time_ms);
   }
+  */
 }
 
 void OccupancyGridMapOutlierFilterComponent::filterByOccupancyGridMap(

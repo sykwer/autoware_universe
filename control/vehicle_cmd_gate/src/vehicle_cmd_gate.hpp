@@ -47,9 +47,13 @@
 #include <visualization_msgs/msg/marker_array.hpp>
 
 #include <memory>
+#include <mutex>
 
 namespace vehicle_cmd_gate
 {
+using IsPaused = control_interface::IsPaused;
+using IsStartRequested = control_interface::IsStartRequested;
+using IsStopped = control_interface::IsStopped;
 
 using autoware_adapi_v1_msgs::msg::MrmState;
 using autoware_adapi_v1_msgs::msg::OperationModeState;
@@ -203,8 +207,88 @@ private:
   void publishEmergencyStopControlCommands();
   void publishStatus();
 
+  rclcpp::CallbackGroup::SharedPtr cg_publish_timer_;
+  rclcpp::TimerBase::SharedPtr publish_timer_;
+  void publishCachedMsg();
+
+  std::mutex mtx_;
+
+  // publishStatus()
+  /*
+  gate_mode_pub_->publish(current_gate_mode_);
+  engage_pub_->publish(autoware_engage);
+  pub_external_emergency_->publish(external_emergency);
+  operation_mode_pub_->publish(current_operation_mode_);
+  adapi_pause_->publish();
+  moderate_stop_interface_->publish();
+  */
+  struct CachedMsgs0 {
+    GateMode current_gate_mode;
+    EngageMsg autoware_engage;
+    Emergency external_emergency;
+    OperationModeState current_operation_mode;
+
+    bool is_paused_ready = false;
+    IsPaused::Message is_paused;
+    bool is_start_requested_ready = false;
+    IsStartRequested::Message is_start_requested;
+
+    bool is_stopped_ready = false;
+    IsStopped::Message is_stopped;
+  };
+
+  CachedMsgs0 msgs0_;
+  bool msgs0_ready_ = false;
+
+  // onTimer()
+  /*
+  turn_indicator_cmd_pub_->publish(turn_indicator);
+  hazard_light_cmd_pub_->publish(hazard_light);
+  gear_cmd_pub_->publish(gear);
+  */
+  struct CachedMsgs1 {
+    TurnIndicatorsCommand turn_indicator;
+    HazardLightsCommand hazard_light;
+    GearCommand gear;
+  };
+
+  CachedMsgs1 msgs1_;
+  bool msgs1_ready_ = false;
+
+  // onTimer() -> publishEmergencyStopControlCommands()
+  /*
+  vehicle_cmd_emergency_pub_->publish(vehicle_cmd_emergency);
+  control_cmd_pub_->publish(control_cmd);
+  turn_indicator_cmd_pub_->publish(turn_indicator);
+  hazard_light_cmd_pub_->publish(hazard_light);
+  gear_cmd_pub_->publish(gear);
+  */
+  struct CachedMsgs2 {
+    VehicleEmergencyStamped vehicle_cmd_emergency;
+    AckermannControlCommand control_cmd;
+    TurnIndicatorsCommand turn_indicator;
+    HazardLightsCommand hazard_light;
+    GearCommand gear;
+  };
+
+  CachedMsgs2 msgs2_;
+  bool msgs2_ready_ = false;
+
+  // onAutoCtrlCmd() -> publishControlCommands() -> filterControlCommand()
+  /*
+  is_filter_activated_pub_->publish(is_filter_activated);
+  filter_activated_marker_pub_->publish(createMarkerArray(is_filter_activated));
+  */
+  struct CachedMsgs3 {
+    IsFilterActivated is_filter_activated;
+    MarkerArray marker_array;
+  };
+
+  CachedMsgs3 msgs3_;
+  bool msgs3_ready_ = false;
+
   // Diagnostics Updater
-  diagnostic_updater::Updater updater_;
+  // diagnostic_updater::Updater updater_;
 
   void checkExternalEmergencyStop(diagnostic_updater::DiagnosticStatusWrapper & stat);
 

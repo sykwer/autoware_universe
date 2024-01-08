@@ -768,10 +768,12 @@ MotionVelocitySmootherNode::calcInitialMotion(
           get_logger(), "calcInitialMotion : stop point is close (%.3f[m]). no engage.", stop_dist);
       }
     } else if (target_vel > 0.0) {
+      /*
       RCLCPP_WARN_THROTTLE(
         get_logger(), *clock_, 3000,
         "calcInitialMotion : target velocity(%.3f[m/s]) is lower than engage velocity(%.3f[m/s]). ",
         target_vel, node_param_.engage_velocity);
+        */
     }
   }
 
@@ -781,8 +783,10 @@ MotionVelocitySmootherNode::calcInitialMotion(
     const bool is_in_autonomous_control = operation_mode_.is_autoware_control_enabled &&
                                           operation_mode_.mode == OperationModeState::AUTONOMOUS;
     if (!is_in_autonomous_control) {
+      /*
       RCLCPP_INFO_THROTTLE(
         get_logger(), *clock_, 10000, "Not in autonomous control. Plan from ego velocity.");
+        */
       // We should plan from the current vehicle speed, but if the initial value is greater than the
       // velocity limit, the current planning algorithm decelerates with a very high deceleration.
       // To avoid this, we set the initial value of the vehicle speed to be below the speed limit.

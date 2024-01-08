@@ -5,7 +5,7 @@
   <arg name="output/objects" default="/perception/object_recognition/detection/validation/obstacle_pointcloud_based/objects"/>
   <arg name="obstacle_pointcloud_based_validator_param_path" default="$(find-pkg-share detected_object_validation)/config/obstacle_pointcloud_based_validator.param.yaml"/>
 
-  <node_container pkg="rclcpp_component_container_callback_isolated" exec="component_container_callback_isolated" name="obstacle_pointcloud_based_validator_node_container" namespace="">
+  <load_composable_node target="pointcloud_container">
     <composable_node pkg="detected_object_validation" plugin="obstacle_pointcloud_based_validator::ObstaclePointCloudBasedValidator" name="obstacle_pointcloud_based_validator_node" namespace="">
       <remap from="~/input/detected_objects" to="$(var input/detected_objects)"/>
       <remap from="~/input/obstacle_pointcloud" to="$(var input/obstacle_pointcloud)"/>
@@ -13,5 +13,5 @@
       <param name="enable_debugger" value="false"/>
       <param from="$(var obstacle_pointcloud_based_validator_param_path)"/>
     </composable_node>
-  </node_container>
+  </load_composable_node>
 </launch>

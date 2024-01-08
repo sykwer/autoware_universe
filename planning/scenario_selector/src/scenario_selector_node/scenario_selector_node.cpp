@@ -321,10 +321,12 @@ void ScenarioSelectorNode::publishTrajectory(
   if (delay_sec <= th_max_message_delay_sec_) {
     pub_trajectory_->publish(*msg);
   } else {
+    /*
     RCLCPP_WARN_THROTTLE(
       this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
       "trajectory is delayed: scenario = %s, delay = %f, th_max_message_delay = %f",
       current_scenario_.c_str(), delay_sec, th_max_message_delay_sec_);
+      */
   }
 }
 

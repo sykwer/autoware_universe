@@ -391,7 +391,7 @@ private:
   template <typename... Args>
   inline bool fail_warn_throttle(Args &&... args) const
   {
-    RCLCPP_WARN_THROTTLE(m_logger, *m_clock, 3000, args...);
+    // RCLCPP_WARN_THROTTLE(m_logger, *m_clock, 3000, args...);
     return false;
   }
 
@@ -399,7 +399,7 @@ private:
   template <typename... Args>
   inline void warn_throttle(Args &&... args) const
   {
-    RCLCPP_WARN_THROTTLE(m_logger, *m_clock, 3000, args...);
+    // RCLCPP_WARN_THROTTLE(m_logger, *m_clock, 3000, args...);
   }
 
 public:

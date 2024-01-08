@@ -113,6 +113,7 @@ CSC_Matrix calCSCMatrixTrapezoidal(const Eigen::MatrixXd & mat)
 
 void printCSCMatrix(const CSC_Matrix & csc_mat)
 {
+  /*
   std::cout << "[";
   for (const c_float & val : csc_mat.m_vals) {
     std::cout << val << ", ";
@@ -130,5 +131,6 @@ void printCSCMatrix(const CSC_Matrix & csc_mat)
     std::cout << col << ", ";
   }
   std::cout << "]\n";
+  */
 }
 }  // namespace qp

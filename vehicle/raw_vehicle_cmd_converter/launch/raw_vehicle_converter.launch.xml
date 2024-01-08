@@ -17,7 +17,7 @@
   <arg name="input_steering" default="/vehicle/status/steering_status"/>
   <arg name="output_actuation_cmd" default="/control/command/actuation_cmd"/>
 
-  <node_container pkg="rclcpp_component_container_callback_isolated" exec="component_container_callback_isolated" name="raw_vehicle_cmd_converter_container" namespace="">
+  <load_composable_node target="/control/control_container">
     <composable_node pkg="raw_vehicle_cmd_converter" plugin="raw_vehicle_cmd_converter::RawVehicleCommandConverterNode" name="raw_vehicle_cmd_converter" namespace="">
       <param from="$(var converter_param_path)"/>
       <param name="csv_path_accel_map" value="$(var csv_path_accel_map)"/>
@@ -35,5 +35,5 @@
       <remap from="~/input/steering" to="$(var input_steering)"/>
       <remap from="~/output/actuation_cmd" to="$(var output_actuation_cmd)"/>
     </composable_node>
-  </node_container>
+  </load_composable_node>
 </launch>

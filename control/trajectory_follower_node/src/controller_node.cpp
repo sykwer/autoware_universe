@@ -220,7 +220,7 @@ void Controller::callbackTimerControl()
   control_cmd_pub_->publish(out);
 
   // 6. publish debug marker
-  publishDebugMarker(*input_data, lat_out);
+  // publishDebugMarker(*input_data, lat_out);
 }
 
 void Controller::publishDebugMarker(

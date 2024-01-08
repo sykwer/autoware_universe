@@ -10,7 +10,7 @@
   <arg name="exact_sync" default="false" />
   <arg name="node_name_suffix" />
 
-  <node_container pkg="rclcpp_component_container_callback_isolated" exec="component_container_callback_isolated" name="$(anon object_association_merger_container)" namespace="">
+  <load_composable_node target="pointcloud_container2">
     <composable_node pkg="object_merger" plugin="object_association::ObjectAssociationMergerNode" name="object_association_merger$(var node_name_suffix)" namespace="">
       <remap from="input/object0" to="$(var input/object0)"/>
       <remap from="input/object1" to="$(var input/object1)"/>
@@ -23,5 +23,5 @@
       <param name="remove_overlapped_unknown_objects" value="true"/>
       <param name="exact_sync" value="$(var exact_sync)" />
     </composable_node>
-  </node_container>
+  </load_composable_node>
 </launch>

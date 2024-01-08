@@ -79,7 +79,7 @@ bool TrackerState::predict(const rclcpp::Time & current_time)
   // get dt and give warning if dt is too large
   double dt = (current_time - last_update_time_).seconds();
   if (std::abs(dt) > max_dt_) {
-    std::cerr << "[tracking_object_merger] dt is too large: " << dt << std::endl;
+    // std::cerr << "[tracking_object_merger] dt is too large: " << dt << std::endl;
     return false;
   }
 
@@ -136,7 +136,7 @@ bool TrackerState::updateState(
   // calc dt
   double dt = (current_time - last_update_time_).seconds();
   if (dt < 0.0) {
-    std::cerr << "[tracking_object_merger] dt is negative: " << dt << std::endl;
+    // std::cerr << "[tracking_object_merger] dt is negative: " << dt << std::endl;
     return false;
   }
 
@@ -234,7 +234,7 @@ void TrackerState::updateWithoutSensor(const rclcpp::Time & current_time)
   // calc dt
   double dt = (current_time - last_update_time_).seconds();
   if (dt < 0) {
-    std::cerr << "[tracking_object_merger] dt is negative: " << dt << std::endl;
+    // std::cerr << "[tracking_object_merger] dt is negative: " << dt << std::endl;
     return;
   }
 

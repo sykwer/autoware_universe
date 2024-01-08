@@ -144,11 +144,11 @@ bool linearInterpMPCTrajectory(
     out_traj.smooth_k = lerp_arc_length(in_traj.smooth_k);
     out_traj.relative_time = lerp_arc_length(in_traj.relative_time);
   } catch (const std::exception & e) {
-    std::cerr << "linearInterpMPCTrajectory error!: " << e.what() << std::endl;
+    // std::cerr << "linearInterpMPCTrajectory error!: " << e.what() << std::endl;
   }
 
   if (out_traj.empty()) {
-    std::cerr << "[mpc util] linear interpolation error" << std::endl;
+    // std::cerr << "[mpc util] linear interpolation error" << std::endl;
     return false;
   }
 
@@ -208,7 +208,7 @@ std::vector<double> calcTrajectoryCurvature(
     try {
       curvature_vec.at(curr_idx) = tier4_autoware_utils::calcCurvature(p1, p2, p3);
     } catch (...) {
-      std::cerr << "[MPC] 2 points are too close to calculate curvature." << std::endl;
+      // std::cerr << "[MPC] 2 points are too close to calculate curvature." << std::endl;
       curvature_vec.at(curr_idx) = 0.0;
     }
   }
@@ -304,7 +304,7 @@ bool calcNearestPoseInterp(
   if (autoware_traj.points.empty()) {
     const auto logger = rclcpp::get_logger("mpc_util");
     auto clock = rclcpp::Clock(RCL_ROS_TIME);
-    RCLCPP_WARN_THROTTLE(logger, clock, 5000, "[calcNearestPoseInterp] input trajectory is empty");
+    // RCLCPP_WARN_THROTTLE(logger, clock, 5000, "[calcNearestPoseInterp] input trajectory is empty");
     return false;
   }
 

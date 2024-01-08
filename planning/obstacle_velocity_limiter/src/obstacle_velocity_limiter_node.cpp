@@ -175,9 +175,11 @@ void ObstacleVelocityLimiterNode::onTrajectory(const Trajectory::ConstSharedPtr 
   const auto ego_idx =
     motion_utils::findNearestIndex(msg->points, current_odometry_ptr_->pose.pose);
   if (!ego_idx) {
+    /*
     RCLCPP_WARN_THROTTLE(
       get_logger(), *get_clock(), rcutils_duration_value_t(1000),
       "Cannot calculate ego index on the trajectory");
+      */
     return;
   }
   auto original_traj = *msg;
@@ -222,22 +224,25 @@ void ObstacleVelocityLimiterNode::onTrajectory(const Trajectory::ConstSharedPtr 
 
   const auto t_end = std::chrono::system_clock::now();
   const auto runtime = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start);
-  pub_runtime_->publish(std_msgs::msg::Int64().set__data(runtime.count()));
+  // pub_runtime_->publish(std_msgs::msg::Int64().set__data(runtime.count()));
 
   if (pub_debug_markers_->get_subscription_count() > 0) {
     const auto safe_projected_linestrings =
       createProjectedLines(downsampled_traj, projection_params_);
     const auto safe_footprint_polygons =
       createFootprintPolygons(safe_projected_linestrings, vehicle_lateral_offset_);
+      /*
     pub_debug_markers_->publish(makeDebugMarkers(
       obstacles, projected_linestrings, safe_projected_linestrings, footprint_polygons,
       safe_footprint_polygons, obstacle_masks, occupancy_grid_ptr_->info.origin.position.z));
+      */
   }
 }
 
 bool ObstacleVelocityLimiterNode::validInputs()
 {
   constexpr auto one_sec = rcutils_duration_value_t(1000);
+  /*
   if (!occupancy_grid_ptr_)
     RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), one_sec, "Occupancy grid not yet received");
   if (!dynamic_obstacles_ptr_)
@@ -245,6 +250,7 @@ bool ObstacleVelocityLimiterNode::validInputs()
   if (!current_odometry_ptr_)
     RCLCPP_WARN_THROTTLE(
       get_logger(), *get_clock(), one_sec, "Current ego velocity not yet received");
+      */
 
   return occupancy_grid_ptr_ && dynamic_obstacles_ptr_ && current_odometry_ptr_;
 }

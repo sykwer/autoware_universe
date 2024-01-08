@@ -46,7 +46,7 @@
   <arg name="input/image6" default="/image_raw6"/>
   <arg name="input/image7" default="/image_raw7"/>
   <group>
-    <node_container pkg="rclcpp_component_container_callback_isolated" exec="component_container_callback_isolated" name="image_projection_based_fusion_container" namespace="">
+    <load_composable_node target="pointcloud_container2">
       <composable_node pkg="image_projection_based_fusion" plugin="image_projection_based_fusion::RoiClusterFusionNode" name="roi_cluster_fusion" namespace="">
         <param name="trust_object_iou_mode" value="iou"/>
         <param name="non_trust_object_iou_mode" value="iou_x"/>
@@ -99,6 +99,6 @@
         <param name="filter_scope_maxz" value="$(var filter_scope_maxz)"/>
         <param name="image_buffer_size" value="$(var image_buffer_size)"/>
       </composable_node>
-    </node_container>
+    </load_composable_node>
   </group>
 </launch>

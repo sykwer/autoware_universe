@@ -152,7 +152,7 @@ ModuleStatus AvoidanceModule::updateState()
     });
 
   if (!isDrivingSameLane(helper_.getPreviousDrivingLanes(), data.current_lanelets)) {
-    RCLCPP_WARN_THROTTLE(getLogger(), *clock_, 500, "previous module lane is updated.");
+    // RCLCPP_WARN_THROTTLE(getLogger(), *clock_, 500, "previous module lane is updated.");
     return ModuleStatus::SUCCESS;
   }
 
@@ -165,7 +165,7 @@ ModuleStatus AvoidanceModule::updateState()
   if (
     calcDistance2d(getEgoPose(), getPose(data.reference_path.points.back())) > THRESHOLD &&
     arrived_path_end_) {
-    RCLCPP_WARN_THROTTLE(getLogger(), *clock_, 500, "reach path end point. exit avoidance module.");
+    // RCLCPP_WARN_THROTTLE(getLogger(), *clock_, 500, "reach path end point. exit avoidance module.");
     return ModuleStatus::SUCCESS;
   }
 
@@ -239,8 +239,10 @@ AvoidancePlanningData AvoidanceModule::calcAvoidancePlanningData(DebugData & deb
 
   debug.center_line = center_path;
   if (center_path.points.size() < 2) {
+    /*
     RCLCPP_WARN_THROTTLE(
       getLogger(), *clock_, 5000, "calcCenterLinePath() must return path which size > 1");
+      */
     return data;
   }
 
@@ -514,7 +516,7 @@ void AvoidanceModule::fillEgoStatus(
   if (offset > parameters_->safety_check_ego_offset) {
     data.safe_new_sl.clear();
     data.candidate_path = helper_.getPreviousSplineShiftPath();
-    RCLCPP_WARN_THROTTLE(getLogger(), *clock_, 500, "unsafe. canceling candidate path...");
+    // RCLCPP_WARN_THROTTLE(getLogger(), *clock_, 500, "unsafe. canceling candidate path...");
     return;
   }
 
@@ -546,7 +548,7 @@ void AvoidanceModule::fillEgoStatus(
     data.safe = true;  // overwrite safety judge.
     data.yield_required = false;
     data.safe_new_sl = data.unapproved_new_sl;
-    RCLCPP_WARN_THROTTLE(getLogger(), *clock_, 500, "unsafe. but could not transit yield status.");
+    // RCLCPP_WARN_THROTTLE(getLogger(), *clock_, 500, "unsafe. but could not transit yield status.");
     return;
   }
 
@@ -564,7 +566,7 @@ void AvoidanceModule::fillEgoStatus(
    */
   const auto approved_path_exist = !path_shifter_.getShiftLines().empty();
   if (approved_path_exist) {
-    RCLCPP_WARN_THROTTLE(getLogger(), *clock_, 5000, "unsafe. canceling approved path...");
+    // RCLCPP_WARN_THROTTLE(getLogger(), *clock_, 5000, "unsafe. canceling approved path...");
     return;
   }
 
@@ -573,7 +575,7 @@ void AvoidanceModule::fillEgoStatus(
    * stops in front of the front object with the necessary distance to avoid the object.
    */
   {
-    RCLCPP_WARN_THROTTLE(getLogger(), *clock_, 5000, "unsafe. transit yield maneuver...");
+    // RCLCPP_WARN_THROTTLE(getLogger(), *clock_, 5000, "unsafe. transit yield maneuver...");
   }
 }
 
@@ -936,11 +938,13 @@ AvoidLineArray AvoidanceModule::calcRawShiftLinesFromObjects(
     const auto feasible_shift_length = PathShifter::calcLateralDistFromJerk(
       remaining_distance, helper_.getLateralMaxJerkLimit(), helper_.getAvoidanceEgoSpeed());
 
+    /*
     RCLCPP_WARN_THROTTLE(
       getLogger(), *clock_, 1000,
       "original shift length is not feasible. generate avoidance path under the constraints. "
       "[original: (%.2f) actual: (%.2f)]",
       std::abs(avoiding_shift), feasible_shift_length);
+      */
 
     return desire_shift_length > 0.0 ? feasible_shift_length + current_ego_shift
                                      : -1.0 * feasible_shift_length + current_ego_shift;
@@ -1808,7 +1812,7 @@ void AvoidanceModule::addReturnShiftLineFromEgo(AvoidLineArray & sl_candidates) 
 
   // check if there is enough distance for return.
   if (last_sl_distance > remaining_distance) {  // tmp: add some small number (+1.0)
-    RCLCPP_WARN_THROTTLE(getLogger(), *clock_, 1000, "No enough distance for return.");
+    // RCLCPP_WARN_THROTTLE(getLogger(), *clock_, 1000, "No enough distance for return.");
     return;
   }
 
@@ -2559,8 +2563,10 @@ bool AvoidanceModule::isValidShiftLine(
     constexpr double THRESHOLD = 0.1;
     const auto offset = std::abs(new_shift_length - helper_.getEgoShift());
     if (offset > THRESHOLD) {
+      /*
       RCLCPP_WARN_THROTTLE(
         getLogger(), *clock_, 1000, "new shift line is invalid. [HUGE OFFSET (%.2f)]", offset);
+        */
       return false;
     }
   }
@@ -3043,7 +3049,7 @@ void AvoidanceModule::insertWaitPoint(
   const auto is_comfortable_stop = helper_.getFeasibleDecelDistance(0.0) < data.to_stop_line;
   const auto is_slow_speed = getEgoSpeed() < parameters_->min_slow_down_speed;
   if (!is_comfortable_stop && !is_slow_speed) {
-    RCLCPP_WARN_THROTTLE(getLogger(), *clock_, 500, "not execute uncomfortable deceleration.");
+    // RCLCPP_WARN_THROTTLE(getLogger(), *clock_, 500, "not execute uncomfortable deceleration.");
     return;
   }
 

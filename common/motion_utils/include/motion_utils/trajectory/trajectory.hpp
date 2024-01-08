@@ -167,7 +167,7 @@ boost::optional<size_t> searchZeroVelocityIndex(
   try {
     validateNonEmpty(points_with_twist);
   } catch (const std::exception & e) {
-    std::cerr << e.what() << std::endl;
+    // std::cerr << e.what() << std::endl;
     return {};
   }
 
@@ -194,7 +194,7 @@ boost::optional<size_t> searchZeroVelocityIndex(const T & points_with_twist, con
   try {
     validateNonEmpty(points_with_twist);
   } catch (const std::exception & e) {
-    std::cerr << e.what() << std::endl;
+    // std::cerr << e.what() << std::endl;
     return {};
   }
 
@@ -263,7 +263,7 @@ boost::optional<size_t> findNearestIndex(
   try {
     validateNonEmpty(points);
   } catch (const std::exception & e) {
-    std::cerr << e.what() << std::endl;
+    // std::cerr << e.what() << std::endl;
     return {};
   }
 
@@ -312,7 +312,7 @@ double calcLongitudinalOffsetToSegment(
     if (throw_exception) {
       throw e;
     }
-    std::cerr << e.what() << std::endl;
+    // std::cerr << e.what() << std::endl;
     return std::nan("");
   }
 
@@ -324,7 +324,7 @@ double calcLongitudinalOffsetToSegment(
     try {
       validateNonEmpty(overlap_removed_points);
     } catch (const std::exception & e) {
-      std::cerr << e.what() << std::endl;
+      // std::cerr << e.what() << std::endl;
       return std::nan("");
     }
   }
@@ -334,7 +334,7 @@ double calcLongitudinalOffsetToSegment(
     if (throw_exception) {
       throw e;
     }
-    std::cerr << e.what() << std::endl;
+    // std::cerr << e.what() << std::endl;
     return std::nan("");
   }
 
@@ -436,7 +436,7 @@ double calcLateralOffset(
     try {
       validateNonEmpty(overlap_removed_points);
     } catch (const std::exception & e) {
-      std::cerr << e.what() << std::endl;
+      // std::cerr << e.what() << std::endl;
       return std::nan("");
     }
   }
@@ -446,7 +446,7 @@ double calcLateralOffset(
     if (throw_exception) {
       throw e;
     }
-    std::cerr << e.what() << std::endl;
+    // std::cerr << e.what() << std::endl;
     return std::nan("");
   }
 
@@ -482,7 +482,7 @@ double calcLateralOffset(
     try {
       validateNonEmpty(overlap_removed_points);
     } catch (const std::exception & e) {
-      std::cerr << e.what() << std::endl;
+      // std::cerr << e.what() << std::endl;
       return std::nan("");
     }
   }
@@ -492,7 +492,7 @@ double calcLateralOffset(
     if (throw_exception) {
       throw e;
     }
-    std::cerr << e.what() << std::endl;
+    // std::cerr << e.what() << std::endl;
     return std::nan("");
   }
 
@@ -516,7 +516,7 @@ double calcSignedArcLength(const T & points, const size_t src_idx, const size_t 
   try {
     validateNonEmpty(points);
   } catch (const std::exception & e) {
-    std::cerr << e.what() << std::endl;
+    // std::cerr << e.what() << std::endl;
     return 0.0;
   }
 
@@ -546,7 +546,7 @@ std::vector<double> calcSignedArcLengthPartialSum(
   try {
     validateNonEmpty(points);
   } catch (const std::exception & e) {
-    std::cerr << e.what() << std::endl;
+    // std::cerr << e.what() << std::endl;
     return {};
   }
 
@@ -585,7 +585,7 @@ double calcSignedArcLength(
   try {
     validateNonEmpty(points);
   } catch (const std::exception & e) {
-    std::cerr << e.what() << std::endl;
+    // std::cerr << e.what() << std::endl;
     return 0.0;
   }
 
@@ -615,7 +615,7 @@ double calcSignedArcLength(
   try {
     validateNonEmpty(points);
   } catch (const std::exception & e) {
-    std::cerr << e.what() << std::endl;
+    // std::cerr << e.what() << std::endl;
     return 0.0;
   }
 
@@ -641,7 +641,7 @@ double calcSignedArcLength(
   try {
     validateNonEmpty(points);
   } catch (const std::exception & e) {
-    std::cerr << e.what() << std::endl;
+    // std::cerr << e.what() << std::endl;
     return 0.0;
   }
 
@@ -668,7 +668,7 @@ double calcArcLength(const T & points)
   try {
     validateNonEmpty(points);
   } catch (const std::exception & e) {
-    std::cerr << e.what() << std::endl;
+    // std::cerr << e.what() << std::endl;
     return 0.0;
   }
 
@@ -745,7 +745,7 @@ boost::optional<double> calcDistanceToForwardStopPoint(
   try {
     validateNonEmpty(points_with_twist);
   } catch (const std::exception & e) {
-    std::cerr << e.what() << std::endl;
+    // std::cerr << e.what() << std::endl;
     return {};
   }
 
@@ -774,7 +774,7 @@ inline boost::optional<geometry_msgs::msg::Point> calcLongitudinalOffsetPoint(
   try {
     validateNonEmpty(points);
   } catch (const std::exception & e) {
-    std::cerr << e.what() << std::endl;
+    // std::cerr << e.what() << std::endl;
     return {};
   }
 
@@ -783,7 +783,7 @@ inline boost::optional<geometry_msgs::msg::Point> calcLongitudinalOffsetPoint(
     if (throw_exception) {
       throw e;
     }
-    std::cerr << e.what() << std::endl;
+    // std::cerr << e.what() << std::endl;
     return {};
   }
 
@@ -837,7 +837,7 @@ inline boost::optional<geometry_msgs::msg::Point> calcLongitudinalOffsetPoint(
   try {
     validateNonEmpty(points);
   } catch (const std::exception & e) {
-    std::cerr << e.what() << std::endl;
+    // std::cerr << e.what() << std::endl;
     return {};
   }
 
@@ -872,7 +872,7 @@ inline boost::optional<geometry_msgs::msg::Pose> calcLongitudinalOffsetPose(
   try {
     validateNonEmpty(points);
   } catch (const std::exception & e) {
-    std::cerr << e.what() << std::endl;
+    // std::cerr << e.what() << std::endl;
     return {};
   }
 
@@ -881,7 +881,7 @@ inline boost::optional<geometry_msgs::msg::Pose> calcLongitudinalOffsetPose(
     if (throw_exception) {
       throw e;
     }
-    std::cerr << e.what() << std::endl;
+    // std::cerr << e.what() << std::endl;
     return {};
   }
 
@@ -954,7 +954,7 @@ inline boost::optional<geometry_msgs::msg::Pose> calcLongitudinalOffsetPose(
   try {
     validateNonEmpty(points);
   } catch (const std::exception & e) {
-    std::cerr << e.what() << std::endl;
+    // std::cerr << e.what() << std::endl;
     return {};
   }
 
@@ -984,7 +984,7 @@ inline boost::optional<size_t> insertTargetPoint(
   try {
     validateNonEmpty(points);
   } catch (const std::exception & e) {
-    std::cerr << e.what() << std::endl;
+    // std::cerr << e.what() << std::endl;
     return {};
   }
 
@@ -999,7 +999,7 @@ inline boost::optional<size_t> insertTargetPoint(
   try {
     validateNonSharpAngle(p_front, p_target, p_back);
   } catch (const std::exception & e) {
-    std::cerr << e.what() << std::endl;
+    // std::cerr << e.what() << std::endl;
     return {};
   }
 
@@ -1645,7 +1645,7 @@ boost::optional<double> calcDistanceToForwardStopPoint(
   try {
     validateNonEmpty(points_with_twist);
   } catch (const std::exception & e) {
-    std::cerr << e.what() << std::endl;
+    // std::cerr << e.what() << std::endl;
     return {};
   }
 
@@ -1767,7 +1767,7 @@ double calcYawDeviation(
     try {
       validateNonEmpty(overlap_removed_points);
     } catch (const std::exception & e) {
-      std::cerr << e.what() << std::endl;
+      // std::cerr << e.what() << std::endl;
       return 0.0;
     }
   }
@@ -1777,7 +1777,7 @@ double calcYawDeviation(
     if (throw_exception) {
       throw e;
     }
-    std::cerr << e.what() << std::endl;
+    // std::cerr << e.what() << std::endl;
     return 0.0;
   }
 

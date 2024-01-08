@@ -39,6 +39,9 @@ public:
   bool is_stop_requested() const;
   void publish();
 
+  bool prepare_is_stopped_msg(IsStopped::Message &msg);
+  void publish_is_stopped(IsStopped::Message &msg);
+
 private:
   IsStopped::Message stop_state_;
   std::unordered_map<std::string, bool> stop_map_;

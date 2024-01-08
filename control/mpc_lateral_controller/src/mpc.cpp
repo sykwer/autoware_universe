@@ -181,7 +181,7 @@ void MPC::setReferenceTrajectory(
   const auto [success_resample, mpc_traj_resampled] =
     MPCUtils::resampleMPCTrajectoryByDistance(mpc_traj_raw, param.traj_resample_dist);
   if (!success_resample) {
-    warn_throttle("[setReferenceTrajectory] spline error when resampling by distance");
+    // warn_throttle("[setReferenceTrajectory] spline error when resampling by distance");
     return;
   }
 
@@ -263,7 +263,7 @@ std::pair<bool, MPCData> MPC::getData(
   if (!MPCUtils::calcNearestPoseInterp(
         traj, current_pose, &(data.nearest_pose), &(data.nearest_idx), &(data.nearest_time),
         ego_nearest_dist_threshold, ego_nearest_yaw_threshold)) {
-    warn_throttle("calculateMPC: error in calculating nearest pose. stop mpc.");
+    // warn_throttle("calculateMPC: error in calculating nearest pose. stop mpc.");
     return {false, MPCData{}};
   }
 
@@ -279,13 +279,13 @@ std::pair<bool, MPCData> MPC::getData(
   // check error limit
   const double dist_err = calcDistance2d(current_pose, data.nearest_pose);
   if (dist_err > m_admissible_position_error) {
-    warn_throttle("Too large position error: %fm > %fm", dist_err, m_admissible_position_error);
+    // warn_throttle("Too large position error: %fm > %fm", dist_err, m_admissible_position_error);
     return {false, MPCData{}};
   }
 
   // check yaw error limit
   if (std::fabs(data.yaw_err) > m_admissible_yaw_error_rad) {
-    warn_throttle("Too large yaw error: %f > %f", data.yaw_err, m_admissible_yaw_error_rad);
+    // warn_throttle("Too large yaw error: %f > %f", data.yaw_err, m_admissible_yaw_error_rad);
     return {false, MPCData{}};
   }
 
@@ -294,7 +294,7 @@ std::pair<bool, MPCData> MPC::getData(
     m_param.min_prediction_length / static_cast<double>(m_param.prediction_horizon - 1);
   auto end_time = data.nearest_time + m_param.input_delay + m_ctrl_period + max_prediction_time;
   if (end_time > traj.relative_time.back()) {
-    warn_throttle("path is too short for prediction.");
+    // warn_throttle("path is too short for prediction.");
     return {false, MPCData{}};
   }
   return {true, data};
@@ -309,7 +309,7 @@ std::pair<bool, MPCTrajectory> MPC::resampleMPCTrajectoryByTime(
     mpc_time_v.push_back(ts + i * prediction_dt);
   }
   if (!MPCUtils::linearInterpMPCTrajectory(input.relative_time, input, mpc_time_v, output)) {
-    warn_throttle("calculateMPC: mpc resample error. stop mpc calculation. check code!");
+    // warn_throttle("calculateMPC: mpc resample error. stop mpc calculation. check code!");
     return {false, {}};
   }
   return {true, output};
@@ -755,9 +755,11 @@ VectorXd MPC::calcSteerRateLimitOnTrajectory(
       }
     }
 
+    /*
     std::cerr << "MPC::calcSteerRateLimitOnTrajectory() interpolation logic is broken. Command "
                  "filter is not working. Please check the code."
               << std::endl;
+    */
     return reference.back();
   };
 

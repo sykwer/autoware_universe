@@ -292,8 +292,8 @@ Polygon2d NoStoppingAreaModule::generateEgoNoStoppingAreaLanePolygon(
   const auto closest_idx_opt =
     motion_utils::findNearestIndex(interpolated_path.points, ego_pose, 3.0, M_PI_4);
   if (!closest_idx_opt) {
-    RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      logger_, *clock_, 1000 /* ms */, "motion_utils::findNearestIndex fail");
+    // RCLCPP_WARN_SKIPFIRST_THROTTLE(
+    //   logger_, *clock_, 1000 /* ms */, "motion_utils::findNearestIndex fail");
     return ego_area;
   }
   const size_t closest_idx = closest_idx_opt.get();
@@ -390,8 +390,10 @@ bool NoStoppingAreaModule::isStoppable(
     if (not_stoppable) {
       // pass through
       is_stoppable_ = false;
+      /*
       RCLCPP_WARN_THROTTLE(
         logger_, *clock_, 1000, "[NoStoppingArea] can't stop in front of no stopping area");
+        */
     } else {
       is_stoppable_ = true;
     }

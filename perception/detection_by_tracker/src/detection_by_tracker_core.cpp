@@ -82,7 +82,7 @@ void TrackerHandler::onTrackedObjects(
 {
   constexpr size_t max_buffer_size = 10;
 
-  std::lock_guard<std::mutex> lock(mtx_);
+  objects_buffer_bak_ = objects_buffer_;
 
   // Add tracked objects to buffer
   objects_buffer_bak_.push_front(*msg);
@@ -91,35 +91,51 @@ void TrackerHandler::onTrackedObjects(
   while (max_buffer_size < objects_buffer_bak_.size()) {
     objects_buffer_bak_.pop_back();
   }
-}
 
-bool TrackerHandler::estimateTrackedObjects(
-  const rclcpp::Time & time, autoware_auto_perception_msgs::msg::TrackedObjects & output)
-{
   {
     std::lock_guard<std::mutex> lock(mtx_);
-    objects_buffer_ = objects_buffer_bak_;
+    std::swap(objects_buffer_, objects_buffer_bak_);
   }
+}
 
+int TrackerHandler::estimateTrackedObjects(
+  const rclcpp::Time & time, autoware_auto_perception_msgs::msg::TrackedObjects & output)
+{
   if (objects_buffer_.empty()) {
-    return false;
+    return -1;
   }
 
-  // Get the objects closest to the target time.
-  const auto target_objects_iter = std::min_element(
-    objects_buffer_.cbegin(), objects_buffer_.cend(),
-    [&time](
-      autoware_auto_perception_msgs::msg::TrackedObjects first,
-      autoware_auto_perception_msgs::msg::TrackedObjects second) {
-      return std::fabs((time - first.header.stamp).seconds()) <
-             std::fabs((time - second.header.stamp).seconds());
-    });
+  int ret = 0;
 
-  // Estimate the pose of the object at the target time
-  const auto dt = time - target_objects_iter->header.stamp;
-  output.header.frame_id = target_objects_iter->header.frame_id;
-  output.header.stamp = time;
-  for (const auto & object : target_objects_iter->objects) {
+  std::vector<autoware_auto_perception_msgs::msg::TrackedObject> objects;
+  rclcpp::Duration dt(0, 0);
+
+  {
+    std::lock_guard<std::mutex> lock(mtx_);
+
+    // Get the objects closest to the target time.
+    const auto target_objects_iter = std::min_element(
+      objects_buffer_.cbegin(), objects_buffer_.cend(),
+      [&time](
+        const autoware_auto_perception_msgs::msg::TrackedObjects &first,
+        const autoware_auto_perception_msgs::msg::TrackedObjects &second) {
+        return std::fabs((time - first.header.stamp).seconds()) <
+               std::fabs((time - second.header.stamp).seconds());
+      });
+
+    // Estimate the pose of the object at the target time
+    dt = time - target_objects_iter->header.stamp;
+    output.header.frame_id = target_objects_iter->header.frame_id;
+    output.header.stamp = time;
+
+    objects.reserve(target_objects_iter->objects.size());
+    objects = target_objects_iter->objects;
+  }
+
+  output.objects.reserve(objects.size());
+  for (const auto & object : objects) {
+    ret++;
+
     const auto & pose_with_covariance = object.kinematics.pose_with_covariance;
     const auto & x = pose_with_covariance.pose.position.x;
     const auto & y = pose_with_covariance.pose.position.y;
@@ -145,7 +161,8 @@ bool TrackerHandler::estimateTrackedObjects(
       tier4_autoware_utils::createQuaternionFromYaw(yaw_hat);
     output.objects.push_back(estimated_object);
   }
-  return true;
+
+  return ret;
 }
 
 DetectionByTracker::DetectionByTracker(const rclcpp::NodeOptions & node_options)
@@ -222,41 +239,52 @@ void DetectionByTracker::onObjects(
   autoware_auto_perception_msgs::msg::DetectedObjects tracked_objects;
   {
     autoware_auto_perception_msgs::msg::TrackedObjects objects, transformed_objects;
-    const bool available_trackers =
+    const int ret =
       tracker_handler_.estimateTrackedObjects(input_msg->header.stamp, objects);
-    if (
-      !available_trackers ||
-      !object_recognition_utils::transformObjects(
-        objects, input_msg->header.frame_id, tf_buffer_, transformed_objects)) {
+    const bool available_trackers = ret >= 0;
+
+    auto ret2 = object_recognition_utils::transformObjects(
+        objects, input_msg->header.frame_id, tf_buffer_, transformed_objects);
+
+    if (!available_trackers || !ret2) {
       objects_pub_->publish(detected_objects);
       return;
     }
     // to simplify post processes, convert tracked_objects to DetectedObjects message.
     tracked_objects = object_recognition_utils::toDetectedObjects(transformed_objects);
   }
-  debugger_->publishInitialObjects(*input_msg);
-  debugger_->publishTrackedObjects(tracked_objects);
+
+  // debugger_->publishInitialObjects(*input_msg);
+
+  // debugger_->publishTrackedObjects(tracked_objects);
 
   // merge over segmented objects
   tier4_perception_msgs::msg::DetectedObjectsWithFeature merged_objects;
   autoware_auto_perception_msgs::msg::DetectedObjects no_found_tracked_objects;
   mergeOverSegmentedObjects(tracked_objects, *input_msg, no_found_tracked_objects, merged_objects);
-  debugger_->publishMergedObjects(merged_objects);
+
+  // debugger_->publishMergedObjects(merged_objects);
 
   // divide under segmented objects
+  /* (tmp delete)
   tier4_perception_msgs::msg::DetectedObjectsWithFeature divided_objects;
   autoware_auto_perception_msgs::msg::DetectedObjects temp_no_found_tracked_objects;
   divideUnderSegmentedObjects(
     no_found_tracked_objects, *input_msg, temp_no_found_tracked_objects, divided_objects);
-  debugger_->publishDividedObjects(divided_objects);
+  */
+
+  // debugger_->publishDividedObjects(divided_objects);
 
   // merge under/over segmented objects to build output objects
   for (const auto & merged_object : merged_objects.feature_objects) {
     detected_objects.objects.push_back(merged_object.object);
   }
+
+  /* (tmp delete)
   for (const auto & divided_object : divided_objects.feature_objects) {
     detected_objects.objects.push_back(divided_object.object);
   }
+  */
 
   objects_pub_->publish(detected_objects);
 }
@@ -273,6 +301,9 @@ void DetectionByTracker::divideUnderSegmentedObjects(
 
   out_objects.header = in_cluster_objects.header;
   out_no_found_tracked_objects.header = tracked_objects.header;
+
+  out_objects.feature_objects.reserve(tracked_objects.objects.size());
+  out_no_found_tracked_objects.objects.reserve(tracked_objects.objects.size());
 
   for (const auto & tracked_object : tracked_objects.objects) {
     const auto & label = tracked_object.classification.front().label;
@@ -409,6 +440,9 @@ void DetectionByTracker::mergeOverSegmentedObjects(
   constexpr float precision_threshold = 0.5;
   out_objects.header = in_cluster_objects.header;
   out_no_found_tracked_objects.header = tracked_objects.header;
+
+  out_objects.feature_objects.reserve(tracked_objects.objects.size());
+  out_no_found_tracked_objects.objects.reserve(tracked_objects.objects.size());
 
   for (const auto & tracked_object : tracked_objects.objects) {
     const auto & label = tracked_object.classification.front().label;

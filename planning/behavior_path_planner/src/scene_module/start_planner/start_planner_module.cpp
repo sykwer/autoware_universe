@@ -161,7 +161,7 @@ bool StartPlannerModule::isExecutionReady() const
 
   if (status_.is_safe_static_objects && parameters_->safety_check_params.enable_safety_check) {
     if (!isSafePath()) {
-      RCLCPP_ERROR_THROTTLE(getLogger(), *clock_, 5000, "Path is not safe against dynamic objects");
+      // RCLCPP_ERROR_THROTTLE(getLogger(), *clock_, 5000, "Path is not safe against dynamic objects");
       return false;
     }
   }
@@ -190,8 +190,10 @@ ModuleStatus StartPlannerModule::updateState()
 BehaviorModuleOutput StartPlannerModule::plan()
 {
   if (IsGoalBehindOfEgoInSameRouteSegment()) {
+    /*
     RCLCPP_WARN_THROTTLE(
       getLogger(), *clock_, 5000, "Start plan for a backward goal is not supported now");
+      */
     const auto output = generateStopOutput();
     setDebugData();  // use status updated in generateStopOutput()
     updateRTCStatus(0, 0);
@@ -208,8 +210,10 @@ BehaviorModuleOutput StartPlannerModule::plan()
 
   BehaviorModuleOutput output;
   if (!status_.is_safe_static_objects) {
+    /*
     RCLCPP_WARN_THROTTLE(
       getLogger(), *clock_, 5000, "Not found safe pull out path, publish stop path");
+      */
     const auto output = generateStopOutput();
     setDebugData();  // use status updated in generateStopOutput()
     updateRTCStatus(0, 0);
@@ -313,8 +317,10 @@ BehaviorModuleOutput StartPlannerModule::planWaitingApproval()
   updatePullOutStatus();
 
   if (IsGoalBehindOfEgoInSameRouteSegment()) {
+    /*
     RCLCPP_WARN_THROTTLE(
       getLogger(), *clock_, 5000, "Start plan for a backward goal is not supported now");
+      */
     clearWaitingApproval();
     const auto output = generateStopOutput();
     setDebugData();  // use status updated in generateStopOutput()
@@ -324,8 +330,10 @@ BehaviorModuleOutput StartPlannerModule::planWaitingApproval()
 
   BehaviorModuleOutput output;
   if (!status_.is_safe_static_objects) {
+    /*
     RCLCPP_WARN_THROTTLE(
       getLogger(), *clock_, 5000, "Not found safe pull out path, publish stop path");
+      */
     clearWaitingApproval();
     const auto output = generateStopOutput();
     setDebugData();  // use status updated in generateStopOutput()
@@ -717,9 +725,11 @@ std::vector<Pose> StartPlannerModule::searchPullOutStartPoses(
       [](double acc, const auto & lane) { return acc + lanelet::utils::getLaneletLength2d(lane); });
     const double distance_from_lane_end = length_to_lane_end - length_to_backed_pose;
     if (distance_from_lane_end < parameters_->ignore_distance_from_lane_end) {
+      /*
       RCLCPP_WARN_THROTTLE(
         getLogger(), *clock_, 5000,
         "the ego is too close to the lane end, so needs backward driving");
+        */
       continue;
     }
 

@@ -66,22 +66,22 @@ bool validate_arguments(const T & input_points, const std::vector<double> & resa
 {
   // Check size of the arguments
   if (!validate_size(input_points)) {
-    std::cerr << "The number of input points is less than 2" << std::endl;
+    // std::cerr << "The number of input points is less than 2" << std::endl;
     return false;
   } else if (!validate_size(resampling_intervals)) {
-    std::cerr << "The number of resampling intervals is less than 2" << std::endl;
+    // std::cerr << "The number of resampling intervals is less than 2" << std::endl;
     return false;
   }
 
   // Check resampling range
   if (!validate_resampling_range(input_points, resampling_intervals)) {
-    std::cerr << "resampling interval is longer than input points" << std::endl;
+    // std::cerr << "resampling interval is longer than input points" << std::endl;
     return false;
   }
 
   // Check duplication
   if (!validate_points_duplication(input_points)) {
-    std::cerr << "input points has some duplicated points" << std::endl;
+    // std::cerr << "input points has some duplicated points" << std::endl;
     return false;
   }
 
@@ -93,20 +93,20 @@ bool validate_arguments(const T & input_points, const double resampling_interval
 {
   // Check size of the arguments
   if (!validate_size(input_points)) {
-    std::cerr << "The number of input points is less than 2" << std::endl;
+    // std::cerr << "The number of input points is less than 2" << std::endl;
     return false;
   }
 
   // check resampling interval
   if (resampling_interval < motion_utils::overlap_threshold) {
-    std::cerr << "resampling interval is less than " << motion_utils::overlap_threshold
-              << std::endl;
+    // std::cerr << "resampling interval is less than " << motion_utils::overlap_threshold
+    //          << std::endl;
     return false;
   }
 
   // Check duplication
   if (!validate_points_duplication(input_points)) {
-    std::cerr << "input points has some duplicated points" << std::endl;
+    // std::cerr << "input points has some duplicated points" << std::endl;
     return false;
   }
 

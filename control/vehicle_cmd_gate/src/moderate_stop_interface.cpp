@@ -41,6 +41,20 @@ void ModerateStopInterface::publish()
   }
 }
 
+bool ModerateStopInterface::prepare_is_stopped_msg(IsStopped::Message &msg) {
+  if (prev_stop_map_ != stop_map_) {
+    msg = stop_state_;
+    prev_stop_map_ = stop_map_;
+    return true;
+  }
+
+  return false;
+}
+
+void ModerateStopInterface::publish_is_stopped(IsStopped::Message &msg) {
+  pub_is_stopped_->publish(msg);
+}
+
 void ModerateStopInterface::on_stop_request(
   const SetStop::Service::Request::SharedPtr req, const SetStop::Service::Response::SharedPtr res)
 {

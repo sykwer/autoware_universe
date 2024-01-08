@@ -178,8 +178,10 @@ void PlanningValidator::onTrajectory(const Trajectory::ConstSharedPtr msg)
   publishTrajectory();
 
   // for debug
+  /*
   publishDebugInfo();
   displayStatus();
+  */
 }
 
 void PlanningValidator::publishTrajectory()

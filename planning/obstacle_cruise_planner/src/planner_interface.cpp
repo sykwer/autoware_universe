@@ -153,9 +153,12 @@ double findReachTime(
       lower = t;
     }
     iter++;
+
+    /*
     if (iter > warn_iter)
       std::cerr << "[obstacle_cruise_planner](findReachTime): current iter is over warning"
                 << std::endl;
+                */
   }
   return t;
 }

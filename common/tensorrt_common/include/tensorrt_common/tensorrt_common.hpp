@@ -93,7 +93,7 @@ struct BuildConfig
       message << "Invalid calibration type was specified: " << calib_type_str << std::endl
               << "Valid value is one of: [Entropy, (Legacy | Percentile), MinMax]" << std::endl
               << "Default calibration type will be used: MinMax" << std::endl;
-      std::cerr << message.str();
+      // std::cerr << message.str();
     }
   }
 };

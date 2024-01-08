@@ -53,6 +53,37 @@ void AdapiPauseInterface::publish()
   }
 }
 
+bool AdapiPauseInterface::prepare_is_paused_msg(IsPaused::Message &msg) {
+  if (prev_is_paused_ != is_paused_) {
+    msg.stamp = node_->now();
+    msg.data = is_paused_;
+
+    prev_is_paused_ = is_paused_;
+    return true;
+  }
+
+  return false;
+}
+
+void AdapiPauseInterface::publish_is_paused(IsPaused::Message &msg) {
+  pub_is_paused_->publish(msg);
+}
+
+bool AdapiPauseInterface::prepare_is_start_requested_msg(IsStartRequested::Message &msg) {
+  if (prev_is_start_requested_ != is_start_requested_) {
+    msg.stamp = node_->now();
+    msg.data = is_start_requested_;
+    prev_is_start_requested_ = is_start_requested_;
+    return true;
+  }
+
+  return false;
+}
+
+void AdapiPauseInterface::publish_is_start_requested(IsStartRequested::Message &msg) {
+  pub_is_start_requested_->publish(msg);
+}
+
 void AdapiPauseInterface::update(const AckermannControlCommand & control)
 {
   is_start_requested_ = eps < std::abs(control.longitudinal.speed);

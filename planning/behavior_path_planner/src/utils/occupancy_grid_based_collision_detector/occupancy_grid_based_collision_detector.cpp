@@ -156,8 +156,10 @@ bool OccupancyGridBasedCollisionDetector::detectCollision(
   const IndexXYT & base_index, const bool check_out_of_range) const
 {
   if (coll_indexes_table_.empty()) {
+    /*
     std::cerr << "[occupancy_grid_based_collision_detector] setMap has not yet been done."
               << std::endl;
+              */
     return false;
   }
   const auto & coll_indexes_2d = coll_indexes_table_[base_index.theta];

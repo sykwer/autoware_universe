@@ -36,7 +36,7 @@
   <arg name="input/image6" default="/image_raw6"/>
   <arg name="input/image7" default="/image_raw7"/>
   <group>
-    <node_container pkg="rclcpp_component_container_callback_isolated" exec="component_container_callback_isolated" name="roi_detected_object_fusion_container" namespace="">
+    <load_composable_node target="pointcloud_container">
       <composable_node pkg="image_projection_based_fusion" plugin="image_projection_based_fusion::RoiPointCloudFusionNode" name="roi_pointcloud_fusion" namespace="">
         <param name="rois_number" value="$(var input/rois_number)"/>
         <param name="cluster_2d_tolerance" value="$(var cluster_2d_tolerance)"/>
@@ -74,6 +74,6 @@
         <param name="input/camera_info7" value="$(var input/camera_info7)"/>
         <param name="input/image7" value="$(var input/image7)"/>
       </composable_node>
-    </node_container>
+    </load_composable_node>
   </group>
 </launch>

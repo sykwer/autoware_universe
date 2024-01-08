@@ -60,6 +60,7 @@ SpeedBumpModule::SpeedBumpModule(
     speed_bump_slow_down_speed_ = calcSlowDownSpeed(p1, p2, speed_bump_height);
   }
 
+  /*
   if (planner_param_.print_debug_info) {
     std::cout << "------------------------------" << std::endl;
     std::cout << "Speed Bump ID: " << module_id_ << std::endl;
@@ -67,6 +68,7 @@ SpeedBumpModule::SpeedBumpModule(
     std::cout << "Slow Down Speed [kph]: " << speed_bump_slow_down_speed_ * 3.6 << std::endl;
     std::cout << "------------------------------" << std::endl;
   }
+  */
 }
 
 bool SpeedBumpModule::modifyPathVelocity(

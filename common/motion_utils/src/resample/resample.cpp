@@ -94,7 +94,7 @@ std::vector<geometry_msgs::msg::Point> resamplePointVector(
     resampling_arclength.push_back(s);
   }
   if (resampling_arclength.empty()) {
-    std::cerr << "[motion_utils]: resampling arclength is empty" << std::endl;
+    // std::cerr << "[motion_utils]: resampling arclength is empty" << std::endl;
     return points;
   }
 
@@ -160,7 +160,7 @@ std::vector<geometry_msgs::msg::Pose> resamplePoseVector(
     resampling_arclength.push_back(s);
   }
   if (resampling_arclength.empty()) {
-    std::cerr << "[motion_utils]: resampling arclength is empty" << std::endl;
+    // std::cerr << "[motion_utils]: resampling arclength is empty" << std::endl;
     return points;
   }
 
@@ -264,8 +264,10 @@ autoware_auto_planning_msgs::msg::PathWithLaneId resamplePath(
   }
 
   if (input_arclength.back() < resampling_arclength.back()) {
+    /*
     std::cerr << "[motion_utils]: resampled path length is longer than input path length"
               << std::endl;
+              */
     return input_path;
   }
 
@@ -321,8 +323,10 @@ autoware_auto_planning_msgs::msg::PathWithLaneId resamplePath(
   }
 
   if (interpolated_pose.size() != resampling_arclength.size()) {
+    /*
     std::cerr << "[motion_utils]: Resampled pose size is different from resampled arclength"
               << std::endl;
+              */
     return input_path;
   }
 
@@ -369,7 +373,9 @@ autoware_auto_planning_msgs::msg::PathWithLaneId resamplePath(
     resampling_arclength.push_back(s);
   }
   if (resampling_arclength.empty()) {
+    /*
     std::cerr << "[motion_utils]: resampling arclength is empty" << std::endl;
+    */
     return input_path;
   }
 
@@ -471,8 +477,10 @@ autoware_auto_planning_msgs::msg::Path resamplePath(
   const auto interpolated_heading_rate = lerp(heading_rate);
 
   if (interpolated_pose.size() != resampled_arclength.size()) {
+    /*
     std::cerr << "[motion_utils]: Resampled pose size is different from resampled arclength"
               << std::endl;
+              */
     return input_path;
   }
 
@@ -510,7 +518,9 @@ autoware_auto_planning_msgs::msg::Path resamplePath(
     resampling_arclength.push_back(s);
   }
   if (resampling_arclength.empty()) {
+    /*
     std::cerr << "[motion_utils]: resampling arclength is empty" << std::endl;
+    */
     return input_path;
   }
 
@@ -634,8 +644,10 @@ autoware_auto_planning_msgs::msg::Trajectory resampleTrajectory(
   const auto interpolated_time_from_start = lerp(time_from_start);
 
   if (interpolated_pose.size() != resampled_arclength.size()) {
+    /*
     std::cerr << "[motion_utils]: Resampled pose size is different from resampled arclength"
               << std::endl;
+              */
     return input_trajectory;
   }
 
@@ -675,7 +687,9 @@ autoware_auto_planning_msgs::msg::Trajectory resampleTrajectory(
     resampling_arclength.push_back(s);
   }
   if (resampling_arclength.empty()) {
+    /*
     std::cerr << "[motion_utils]: resampling arclength is empty" << std::endl;
+    */
     return input_trajectory;
   }
 

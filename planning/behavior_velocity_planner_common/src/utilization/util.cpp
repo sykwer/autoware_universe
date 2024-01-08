@@ -407,8 +407,11 @@ double findReachTime(
       lower = t;
     }
     iter++;
+
+    /*
     if (iter > warn_iter)
       std::cerr << "[behavior_velocity](findReachTime): current iter is over warning" << std::endl;
+      */
   }
   // std::cout<<"iter: "<<iter<<std::endl;
   return t;

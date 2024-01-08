@@ -1304,9 +1304,11 @@ void generateDrivableArea(
 
   if (left_bound.empty() || right_bound.empty()) {
     auto clock{rclcpp::Clock{RCL_ROS_TIME}};
+    /*
     RCLCPP_ERROR_STREAM_THROTTLE(
       rclcpp::get_logger("behavior_path_planner").get_child("utils"), clock, 1000,
       "The right or left bound of drivable area is empty");
+      */
     return;
   }
 
@@ -2902,9 +2904,11 @@ lanelet::ConstLanelets getCurrentLanes(
   lanelet::ConstLanelet current_lane;
   if (!route_handler->getClosestLaneletWithinRoute(current_pose, &current_lane)) {
     auto clock{rclcpp::Clock{RCL_ROS_TIME}};
+    /*
     RCLCPP_ERROR_STREAM_THROTTLE(
       rclcpp::get_logger("behavior_path_planner").get_child("utils"), clock, 1000,
       "failed to find closest lanelet within route!!!");
+      */
     return {};  // TODO(Horibe) what should be returned?
   }
 

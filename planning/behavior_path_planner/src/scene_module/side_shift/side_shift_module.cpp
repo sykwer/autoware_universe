@@ -222,8 +222,10 @@ void SideShiftModule::updateData()
 
   lanelet::ConstLanelet current_lane;
   if (!route_handler->getClosestLaneletWithinRoute(reference_pose, &current_lane)) {
+    /*
     RCLCPP_ERROR_THROTTLE(
       getLogger(), *clock_, 5000, "failed to find closest lanelet within route!!!");
+      */
   }
 
   // For current_lanes with desired length
@@ -290,7 +292,7 @@ BehaviorModuleOutput SideShiftModule::plan()
   debug_data_.path_shifter = std::make_shared<PathShifter>(path_shifter_);
 
   if (parameters_->publish_debug_marker) {
-    setDebugMarkersVisualization();
+    // setDebugMarkersVisualization();
   } else {
     debug_marker_.markers.clear();
   }

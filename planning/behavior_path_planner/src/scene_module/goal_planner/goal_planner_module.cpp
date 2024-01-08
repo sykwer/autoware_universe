@@ -128,7 +128,7 @@ void GoalPlannerModule::resetStatus()
 void GoalPlannerModule::updateOccupancyGrid()
 {
   if (!planner_data_->occupancy_grid) {
-    RCLCPP_WARN_THROTTLE(getLogger(), *clock_, 5000, "occupancy_grid is not ready");
+    // RCLCPP_WARN_THROTTLE(getLogger(), *clock_, 5000, "occupancy_grid is not ready");
     return;
   }
   occupancy_grid_map_->setMap(*(planner_data_->occupancy_grid));
@@ -370,7 +370,7 @@ bool GoalPlannerModule::isExecutionReady() const
 
   if (status_.is_safe_static_objects && parameters_->safety_check_params.enable_safety_check) {
     if (!isSafePath()) {
-      RCLCPP_ERROR_THROTTLE(getLogger(), *clock_, 5000, "Path is not safe against dynamic objects");
+      // RCLCPP_ERROR_THROTTLE(getLogger(), *clock_, 5000, "Path is not safe against dynamic objects");
       return false;
     }
   }
@@ -733,13 +733,17 @@ void GoalPlannerModule::setStopPath(BehaviorModuleOutput & output)
     status_.pull_over_path->partial_paths.push_back(*output.path);
     last_path_update_time_ = std::make_unique<rclcpp::Time>(clock_->now());
     mutex_.unlock();
+    /*
     RCLCPP_WARN_THROTTLE(
       getLogger(), *clock_, 5000, "Not found safe pull_over path, generate stop path");
+      */
   } else {
     // not_safe -> not_safe: use previous stop path
     output.path = status_.prev_stop_path;
+    /*
     RCLCPP_WARN_THROTTLE(
       getLogger(), *clock_, 5000, "Not found safe pull_over path, use previous stop path");
+      */
   }
   output.reference_path = getPreviousModuleOutput().reference_path;
 }

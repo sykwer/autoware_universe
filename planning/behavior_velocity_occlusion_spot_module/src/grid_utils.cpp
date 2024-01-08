@@ -117,7 +117,7 @@ bool isCollisionFree(
       }
     }  // polys or not
   } catch (const std::invalid_argument & e) {
-    std::cerr << e.what() << std::endl;
+    // std::cerr << e.what() << std::endl;
     return false;
   }
   return true;

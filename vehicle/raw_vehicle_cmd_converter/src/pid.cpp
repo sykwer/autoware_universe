@@ -39,10 +39,12 @@ double PIDController::calculatePID(
   if (enable_integration) {
     error_integral_ += error * dt;
     error_integral_ = std::min(std::max(error_integral_, min_ret_i_ / ki_), max_ret_i_ / ki_);
+    /*
     if (is_debugging) {
       std::cout << "error: " << error << ", dt: " << dt << ", integ_error: " << error_integral_
                 << std::endl;
     }
+    */
   } else {
     error_integral_ *= invalid_integration_decay_;
   }

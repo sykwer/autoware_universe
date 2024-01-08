@@ -37,7 +37,7 @@
   <arg name="input/image7" default="/image_raw7"/>
 
   <group>
-    <node_container pkg="rclcpp_component_container_callback_isolated" exec="component_container_callback_isolated" name="roi_detected_object_fusion_container" namespace="">
+    <load_composable_node target="pointcloud_container">
       <composable_node pkg="image_projection_based_fusion" plugin="image_projection_based_fusion::RoiDetectedObjectFusionNode" name="roi_detected_object_fusion" namespace="">
         <param name="rois_number" value="$(var input/rois_number)"/>
         <param from="$(var sync_param_path)"/>
@@ -75,6 +75,6 @@
         <param name="debug_mode" value="$(var debug_mode)"/>
         <param name="image_buffer_size" value="$(var image_buffer_size)"/>
       </composable_node>
-    </node_container>
+    </load_composable_node>
   </group>
 </launch>

@@ -99,7 +99,7 @@ void PathShifter::setShiftLines(const std::vector<ShiftLine> & lines)
 bool PathShifter::generate(
   ShiftedPath * shifted_path, const bool offset_back, const SHIFT_TYPE type) const
 {
-  RCLCPP_DEBUG_STREAM_THROTTLE(logger_, clock_, 3000, "PathShifter::generate start!");
+  // RCLCPP_DEBUG_STREAM_THROTTLE(logger_, clock_, 3000, "PathShifter::generate start!");
 
   // Guard
   if (reference_path_.points.empty()) {
@@ -111,8 +111,10 @@ bool PathShifter::generate(
   shifted_path->shift_length.resize(reference_path_.points.size(), 0.0);
 
   if (shift_lines_.empty()) {
+    /*
     RCLCPP_DEBUG_STREAM_THROTTLE(
       logger_, clock_, 3000, "shift_lines_ is empty. Return reference with base offset.");
+      */
     shiftBaseLength(shifted_path, base_offset_);
     return true;
   }
@@ -120,10 +122,12 @@ bool PathShifter::generate(
   for (const auto & shift_line : shift_lines_) {
     int idx_gap = shift_line.end_idx - shift_line.start_idx;
     if (idx_gap <= 1) {
+      /*
       RCLCPP_WARN_STREAM_THROTTLE(
         logger_, clock_, 3000,
         "shift start point and end point can't be adjoining "
         "Maybe shift length is too short?");
+        */
       return false;
     }
   }
@@ -137,10 +141,12 @@ bool PathShifter::generate(
   if (shift_lines_.front().start_idx == 0) {
     // if offset is applied on front side, shifting from first point is no problem
     if (offset_back) {
+      /*
       RCLCPP_WARN_STREAM_THROTTLE(
         logger_, clock_, 3000,
         "shift start point is at the edge of path. It could cause undesired result."
         " Maybe path is too short for backward?");
+        */
     }
   }
 
@@ -162,9 +168,11 @@ bool PathShifter::generate(
   } while (previous_size != shifted_path->path.points.size());
 
   // DEBUG
+  /*
   RCLCPP_DEBUG_STREAM_THROTTLE(
     logger_, clock_, 3000,
     "PathShifter::generate end. shift_lines_.size = " << shift_lines_.size());
+    */
 
   return true;
 }
@@ -331,9 +339,11 @@ std::pair<std::vector<double>, std::vector<double>> PathShifter::calcBaseLengths
 
   if (lateral_a_max < lateral_acc_limit_) {
     // no need to consider acceleration limit
+    /*
     RCLCPP_WARN_THROTTLE(
       logger_, clock_, 3000, "No need to consider lateral acc limit. max: %f, limit: %f",
       lateral_a_max, lateral_acc_limit_);
+      */
     return getBaseLengthsWithoutAccelLimit(S, shift_length, v0, a, T, offset_back);
   }
 
@@ -344,10 +354,12 @@ std::pair<std::vector<double>, std::vector<double>> PathShifter::calcBaseLengths
 
   if (tj < 0.0 || ta < 0.0 || lat_jerk < 0.0 || tj / T < 0.1) {
     // no need to consider acceleration limit
+    /*
     RCLCPP_WARN_THROTTLE(
       logger_, clock_, 3000,
       "Acc limit is too small to be applied. Tj: %f, Ta: %f, j: %f, a_max: %f, acc_limit: %f", tj,
       ta, lat_jerk, lateral_a_max, lateral_acc_limit_);
+      */
     return getBaseLengthsWithoutAccelLimit(S, shift_length, offset_back);
   }
 
@@ -448,7 +460,7 @@ bool PathShifter::checkShiftLinesAlignment(const ShiftLineArray & shift_lines) c
 void PathShifter::sortShiftLinesAlongPath(ShiftLineArray & shift_lines) const
 {
   if (shift_lines.empty()) {
-    RCLCPP_DEBUG_STREAM_THROTTLE(logger_, clock_, 3000, "shift_lines is empty. do nothing.");
+    // RCLCPP_DEBUG_STREAM_THROTTLE(logger_, clock_, 3000, "shift_lines is empty. do nothing.");
     return;
   }
 
@@ -470,6 +482,7 @@ void PathShifter::sortShiftLinesAlongPath(ShiftLineArray & shift_lines) const
   shift_lines = sorted_shift_lines;
 
   // Debug
+  /*
   for (const auto & l : unsorted_shift_lines) {
     RCLCPP_DEBUG_STREAM_THROTTLE(logger_, clock_, 3000, "unsorted_shift_lines: " << toStr(l));
   }
@@ -481,6 +494,7 @@ void PathShifter::sortShiftLinesAlongPath(ShiftLineArray & shift_lines) const
       logger_, clock_, 3000, "sorted_shift_lines: in order: " << toStr(l));
   }
   RCLCPP_DEBUG(logger_, "PathShifter::sortShiftLinesAlongPath end.");
+  */
 }
 
 void PathShifter::removeBehindShiftLineAndSetBaseOffset(const size_t nearest_idx)
