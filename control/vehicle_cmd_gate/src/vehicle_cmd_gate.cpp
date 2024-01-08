@@ -78,73 +78,77 @@ VehicleCmdGate::VehicleCmdGate(const rclcpp::NodeOptions & node_options)
   filter_activated_marker_pub_ =
     create_publisher<MarkerArray>("~/is_filter_activated/marker", durable_qos);
 
+  auto cg = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+  rclcpp::SubscriptionOptions subop;
+  subop.callback_group = cg;
+
   // Subscriber
   external_emergency_stop_heartbeat_sub_ = create_subscription<Heartbeat>(
     "input/external_emergency_stop_heartbeat", 1,
-    std::bind(&VehicleCmdGate::onExternalEmergencyStopHeartbeat, this, _1));
+    std::bind(&VehicleCmdGate::onExternalEmergencyStopHeartbeat, this, _1), subop);
   gate_mode_sub_ = create_subscription<GateMode>(
-    "input/gate_mode", 1, std::bind(&VehicleCmdGate::onGateMode, this, _1));
+    "input/gate_mode", 1, std::bind(&VehicleCmdGate::onGateMode, this, _1), subop);
   engage_sub_ = create_subscription<EngageMsg>(
-    "input/engage", 1, std::bind(&VehicleCmdGate::onEngage, this, _1));
+    "input/engage", 1, std::bind(&VehicleCmdGate::onEngage, this, _1), subop);
   kinematics_sub_ = create_subscription<Odometry>(
     "/localization/kinematic_state", 1,
-    [this](Odometry::SharedPtr msg) { current_kinematics_ = *msg; });
+    [this](Odometry::SharedPtr msg) { current_kinematics_ = *msg; }, subop);
   acc_sub_ = create_subscription<AccelWithCovarianceStamped>(
     "input/acceleration", 1, [this](AccelWithCovarianceStamped::SharedPtr msg) {
       current_acceleration_ = msg->accel.accel.linear.x;
-    });
+    }, subop);
   steer_sub_ = create_subscription<SteeringReport>(
     "input/steering", 1,
-    [this](SteeringReport::SharedPtr msg) { current_steer_ = msg->steering_tire_angle; });
+    [this](SteeringReport::SharedPtr msg) { current_steer_ = msg->steering_tire_angle; }, subop);
   operation_mode_sub_ = create_subscription<OperationModeState>(
     "input/operation_mode", rclcpp::QoS(1).transient_local(),
-    [this](const OperationModeState::SharedPtr msg) { current_operation_mode_ = *msg; });
+    [this](const OperationModeState::SharedPtr msg) { current_operation_mode_ = *msg; }, subop);
   mrm_state_sub_ = create_subscription<MrmState>(
-    "input/mrm_state", 1, std::bind(&VehicleCmdGate::onMrmState, this, _1));
+    "input/mrm_state", 1, std::bind(&VehicleCmdGate::onMrmState, this, _1), subop);
 
   // Subscriber for auto
   auto_control_cmd_sub_ = create_subscription<AckermannControlCommand>(
-    "input/auto/control_cmd", 1, std::bind(&VehicleCmdGate::onAutoCtrlCmd, this, _1));
+    "input/auto/control_cmd", 1, std::bind(&VehicleCmdGate::onAutoCtrlCmd, this, _1), subop);
 
   auto_turn_indicator_cmd_sub_ = create_subscription<TurnIndicatorsCommand>(
     "input/auto/turn_indicators_cmd", 1,
-    [this](TurnIndicatorsCommand::ConstSharedPtr msg) { auto_commands_.turn_indicator = *msg; });
+    [this](TurnIndicatorsCommand::ConstSharedPtr msg) { auto_commands_.turn_indicator = *msg; }, subop);
 
   auto_hazard_light_cmd_sub_ = create_subscription<HazardLightsCommand>(
     "input/auto/hazard_lights_cmd", 1,
-    [this](HazardLightsCommand::ConstSharedPtr msg) { auto_commands_.hazard_light = *msg; });
+    [this](HazardLightsCommand::ConstSharedPtr msg) { auto_commands_.hazard_light = *msg; }, subop);
 
   auto_gear_cmd_sub_ = create_subscription<GearCommand>(
     "input/auto/gear_cmd", 1,
-    [this](GearCommand::ConstSharedPtr msg) { auto_commands_.gear = *msg; });
+    [this](GearCommand::ConstSharedPtr msg) { auto_commands_.gear = *msg; }, subop);
 
   // Subscriber for external
   remote_control_cmd_sub_ = create_subscription<AckermannControlCommand>(
-    "input/external/control_cmd", 1, std::bind(&VehicleCmdGate::onRemoteCtrlCmd, this, _1));
+    "input/external/control_cmd", 1, std::bind(&VehicleCmdGate::onRemoteCtrlCmd, this, _1), subop);
 
   remote_turn_indicator_cmd_sub_ = create_subscription<TurnIndicatorsCommand>(
     "input/external/turn_indicators_cmd", 1,
-    [this](TurnIndicatorsCommand::ConstSharedPtr msg) { remote_commands_.turn_indicator = *msg; });
+    [this](TurnIndicatorsCommand::ConstSharedPtr msg) { remote_commands_.turn_indicator = *msg; }, subop);
 
   remote_hazard_light_cmd_sub_ = create_subscription<HazardLightsCommand>(
     "input/external/hazard_lights_cmd", 1,
-    [this](HazardLightsCommand::ConstSharedPtr msg) { remote_commands_.hazard_light = *msg; });
+    [this](HazardLightsCommand::ConstSharedPtr msg) { remote_commands_.hazard_light = *msg; }, subop);
 
   remote_gear_cmd_sub_ = create_subscription<GearCommand>(
     "input/external/gear_cmd", 1,
-    [this](GearCommand::ConstSharedPtr msg) { remote_commands_.gear = *msg; });
+    [this](GearCommand::ConstSharedPtr msg) { remote_commands_.gear = *msg; }, subop);
 
   // Subscriber for emergency
   emergency_control_cmd_sub_ = create_subscription<AckermannControlCommand>(
-    "input/emergency/control_cmd", 1, std::bind(&VehicleCmdGate::onEmergencyCtrlCmd, this, _1));
+    "input/emergency/control_cmd", 1, std::bind(&VehicleCmdGate::onEmergencyCtrlCmd, this, _1), subop);
 
   emergency_hazard_light_cmd_sub_ = create_subscription<HazardLightsCommand>(
     "input/emergency/hazard_lights_cmd", 1,
-    [this](HazardLightsCommand::ConstSharedPtr msg) { emergency_commands_.hazard_light = *msg; });
+    [this](HazardLightsCommand::ConstSharedPtr msg) { emergency_commands_.hazard_light = *msg; }, subop);
 
   emergency_gear_cmd_sub_ = create_subscription<GearCommand>(
     "input/emergency/gear_cmd", 1,
-    [this](GearCommand::ConstSharedPtr msg) { emergency_commands_.gear = *msg; });
+    [this](GearCommand::ConstSharedPtr msg) { emergency_commands_.gear = *msg; }, subop);
 
   // Parameter
   use_emergency_handling_ = declare_parameter<bool>("use_emergency_handling");
@@ -231,9 +235,9 @@ VehicleCmdGate::VehicleCmdGate(const rclcpp::NodeOptions & node_options)
   const auto period_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
     std::chrono::duration<double>(update_period));
   timer_ =
-    rclcpp::create_timer(this, get_clock(), period_ns, std::bind(&VehicleCmdGate::onTimer, this));
+    rclcpp::create_timer(this, get_clock(), period_ns, std::bind(&VehicleCmdGate::onTimer, this), cg);
   timer_pub_status_ = rclcpp::create_timer(
-    this, get_clock(), period_ns, std::bind(&VehicleCmdGate::publishStatus, this));
+    this, get_clock(), period_ns, std::bind(&VehicleCmdGate::publishStatus, this), cg);
 
   cg_publish_timer_ = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
   publish_timer_ = rclcpp::create_timer(this, get_clock(), period_ns / 10, std::bind(&VehicleCmdGate::publishCachedMsg, this), cg_publish_timer_);

@@ -265,7 +265,7 @@ trajectory_follower::LateralOutput MpcLateralController::run(
     ctrl_cmd.steering_tire_angle += steering_offset_->getOffset();
   }
 
-  // (tmp delete) publishPredictedTraj(predicted_traj);
+  publishPredictedTraj(predicted_traj);
   // publishDebugValues(debug_values);
 
   const auto createLateralOutput = [this](const auto & cmd, const bool is_mpc_solved) {

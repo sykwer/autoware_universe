@@ -240,7 +240,7 @@ BehaviorModuleOutput LaneChangeInterface::plan()
   stop_pose_ = module_type_->getStopPose();
 
   setObjectsOfInterestData(true);
-  // (tmp delete) publishObjectsOfInterestData();
+  publishObjectsOfInterestData();
 
   updateSteeringFactorPtr(output);
   clearWaitingApproval();
@@ -265,7 +265,7 @@ BehaviorModuleOutput LaneChangeInterface::planWaitingApproval()
   module_type_->updateLaneChangeStatus();
   setObjectDebugVisualization();
   setObjectsOfInterestData(false);
-  // (tmp delete) publishObjectsOfInterestData();
+  publishObjectsOfInterestData();
 
   // change turn signal when the vehicle reaches at the end of the path for waiting lane change
   out.turn_signal_info = getCurrentTurnSignalInfo(*out.path, out.turn_signal_info);
