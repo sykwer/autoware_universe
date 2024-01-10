@@ -97,7 +97,7 @@ FusionNode<Msg, ObjType>::FusionNode(
   // sub rois
   rois_subs_.resize(rois_number_);
   roi_stdmap_.resize(rois_number_);
-  is_fused_.resize(rois_number_, false);
+  // is_fused_.resize(rois_number_, false);
   for (std::size_t roi_i = 0; roi_i < rois_number_; ++roi_i) {
     std::function<void(const DetectedObjectsWithFeature::ConstSharedPtr msg)> roi_callback =
       std::bind(&FusionNode::roiCallback, this, std::placeholders::_1, roi_i);
@@ -114,10 +114,12 @@ FusionNode<Msg, ObjType>::FusionNode(
   pub_ptr_ = this->create_publisher<Msg>("output", rclcpp::QoS{5});
 
   // Set timer
+  /*
   const auto period_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
     std::chrono::duration<double, std::milli>(timeout_ms_));
   timer_ = rclcpp::create_timer(
     this, get_clock(), period_ns, std::bind(&FusionNode::timer_callback, this));
+  */
 
   // debugger
   if (declare_parameter("debug_mode", false)) {
@@ -163,24 +165,18 @@ void FusionNode<Msg, Obj>::preprocess(Msg & ouput_msg __attribute__((unused)))
 template <class Msg, class Obj>
 void FusionNode<Msg, Obj>::subCallback(const typename Msg::ConstSharedPtr input_msg)
 {
+  /*
   if (sub_std_pair_.second != nullptr) {
     stop_watch_ptr_->toc("processing_time", true);
     timer_->cancel();
     postprocess(*(sub_std_pair_.second));
 
-    if (std::string(get_name()) == "pointpainting") {
-      publish(*(sub_std_pair_.second));
-    } else {
-      static int ignore_count = 0;
-      ignore_count++;
-      RCLCPP_WARN(get_logger(), "sykwer: ignore count in subCallback: %d", ignore_count);
-    }
+    publish(*(sub_std_pair_.second));
 
     sub_std_pair_.second = nullptr;
     std::fill(is_fused_.begin(), is_fused_.end(), false);
 
     // add processing time for debug
-    /*
     if (debug_publisher_) {
       const double cyclic_time_ms = stop_watch_ptr_->toc("cyclic_time", true);
       debug_publisher_->publish<tier4_debug_msgs::msg::Float64Stamped>(
@@ -190,10 +186,12 @@ void FusionNode<Msg, Obj>::subCallback(const typename Msg::ConstSharedPtr input_
         processing_time_ms + stop_watch_ptr_->toc("processing_time", true));
       processing_time_ms = 0;
     }
-    */
   }
+  */
 
   std::lock_guard<std::mutex> lock(mutex_);
+
+  /*
   auto period = std::chrono::duration_cast<std::chrono::nanoseconds>(
     std::chrono::duration<double, std::milli>(timeout_ms_));
   try {
@@ -204,6 +202,7 @@ void FusionNode<Msg, Obj>::subCallback(const typename Msg::ConstSharedPtr input_
   timer_->reset();
 
   stop_watch_ptr_->toc("processing_time", true);
+  */
 
   typename Msg::SharedPtr output_msg = std::make_shared<Msg>(*input_msg);
 
@@ -220,6 +219,25 @@ void FusionNode<Msg, Obj>::subCallback(const typename Msg::ConstSharedPtr input_
       continue;
     }
 
+    if (roi_stdmap_.at(roi_i).empty()) continue;
+
+    auto find_closest = [&](int64_t value) -> std::map<int64_t, DetectedObjectsWithFeature::ConstSharedPtr>::iterator {
+      auto it = roi_stdmap_.at(roi_i).lower_bound(value);
+      if (it == roi_stdmap_.at(roi_i).begin()) return it;
+      auto prev_it = std::prev(it);
+      if (it == roi_stdmap_.at(roi_i).end() || std::abs(value - prev_it->first) <= std::abs(value - it->first)) return prev_it;
+      return it;
+    };
+
+    int64_t new_stamp = timestamp_nsec + input_offset_ms_.at(roi_i) * (int64_t)1e6;
+    auto closest_it = find_closest(new_stamp);
+    fuseOnSingleImage(*input_msg, roi_i, *(closest_it->second), camera_info_map_.at(roi_i), *output_msg);
+
+    if (roi_stdmap_.at(roi_i).size() > 10) {
+      roi_stdmap_.at(roi_i).erase(roi_stdmap_.at(roi_i).begin());
+    }
+
+    /*
     if ((roi_stdmap_.at(roi_i)).size() > 0) {
       int64_t min_interval = 1e9;
       int64_t matched_stamp = -1;
@@ -255,7 +273,6 @@ void FusionNode<Msg, Obj>::subCallback(const typename Msg::ConstSharedPtr input_
         is_fused_.at(roi_i) = true;
 
         // add timestamp interval for debug
-        /*
         if (debug_publisher_) {
           double timestamp_interval_ms = (matched_stamp - timestamp_nsec) / 1e6;
           debug_publisher_->publish<tier4_debug_msgs::msg::Float64Stamped>(
@@ -264,13 +281,14 @@ void FusionNode<Msg, Obj>::subCallback(const typename Msg::ConstSharedPtr input_
             "debug/roi" + std::to_string(roi_i) + "/timestamp_interval_offset_ms",
             timestamp_interval_ms - input_offset_ms_.at(roi_i));
         }
-        */
       }
     }
+    */
   }
 
   // if all camera fused, postprocess; else, publish the old Msg(if exists) and cache the current
   // Msg
+  /*
   if (std::count(is_fused_.begin(), is_fused_.end(), true) == static_cast<int>(rois_number_)) {
     timer_->cancel();
     postprocess(*output_msg);
@@ -279,7 +297,6 @@ void FusionNode<Msg, Obj>::subCallback(const typename Msg::ConstSharedPtr input_
     sub_std_pair_.second = nullptr;
 
     // add processing time for debug
-    /*
     if (debug_publisher_) {
       const double cyclic_time_ms = stop_watch_ptr_->toc("cyclic_time", true);
       processing_time_ms = stop_watch_ptr_->toc("processing_time", true);
@@ -289,23 +306,27 @@ void FusionNode<Msg, Obj>::subCallback(const typename Msg::ConstSharedPtr input_
         "debug/processing_time_ms", processing_time_ms);
       processing_time_ms = 0;
     }
-    */
   } else {
     sub_std_pair_.first = int64_t(timestamp_nsec);
     sub_std_pair_.second = output_msg;
     processing_time_ms = stop_watch_ptr_->toc("processing_time", true);
   }
+  */
+
+  postprocess(*output_msg);
+  publish(*output_msg);
 }
 
 template <class Msg, class Obj>
 void FusionNode<Msg, Obj>::roiCallback(
   const DetectedObjectsWithFeature::ConstSharedPtr input_roi_msg, const std::size_t roi_i)
 {
-  stop_watch_ptr_->toc("processing_time", true);
+  // stop_watch_ptr_->toc("processing_time", true);
 
   int64_t timestamp_nsec =
     (*input_roi_msg).header.stamp.sec * (int64_t)1e9 + (*input_roi_msg).header.stamp.nanosec;
 
+  /*
   // if cached Msg exist, try to match
   if (sub_std_pair_.second != nullptr) {
     int64_t new_stamp = sub_std_pair_.first + input_offset_ms_.at(roi_i) * (int64_t)1e6;
@@ -326,7 +347,6 @@ void FusionNode<Msg, Obj>::roiCallback(
         *(sub_std_pair_.second));
       is_fused_.at(roi_i) = true;
 
-      /*
       if (debug_publisher_) {
         double timestamp_interval_ms = (timestamp_nsec - sub_std_pair_.first) / 1e6;
         debug_publisher_->publish<tier4_debug_msgs::msg::Float64Stamped>(
@@ -335,7 +355,6 @@ void FusionNode<Msg, Obj>::roiCallback(
           "debug/roi" + std::to_string(roi_i) + "/timestamp_interval_offset_ms",
           timestamp_interval_ms - input_offset_ms_.at(roi_i));
       }
-      */
 
       if (std::count(is_fused_.begin(), is_fused_.end(), true) == static_cast<int>(rois_number_)) {
         timer_->cancel();
@@ -353,7 +372,6 @@ void FusionNode<Msg, Obj>::roiCallback(
         sub_std_pair_.second = nullptr;
 
         // add processing time for debug
-        /*
         if (debug_publisher_) {
           const double cyclic_time_ms = stop_watch_ptr_->toc("cyclic_time", true);
           debug_publisher_->publish<tier4_debug_msgs::msg::Float64Stamped>(
@@ -363,12 +381,13 @@ void FusionNode<Msg, Obj>::roiCallback(
             processing_time_ms + stop_watch_ptr_->toc("processing_time", true));
           processing_time_ms = 0;
         }
-        */
       }
       processing_time_ms = processing_time_ms + stop_watch_ptr_->toc("processing_time", true);
       return;
     }
   }
+  */
+
   // store roi msg if not matched
   (roi_stdmap_.at(roi_i))[timestamp_nsec] = input_roi_msg;
 }
@@ -379,6 +398,7 @@ void FusionNode<Msg, Obj>::postprocess(Msg & output_msg __attribute__((unused)))
   // do nothing by default
 }
 
+/*
 template <class Msg, class Obj>
 void FusionNode<Msg, Obj>::timer_callback()
 {
@@ -400,7 +420,6 @@ void FusionNode<Msg, Obj>::timer_callback()
       }
 
       // add processing time for debug
-      /*
       if (debug_publisher_) {
         const double cyclic_time_ms = stop_watch_ptr_->toc("cyclic_time", true);
         debug_publisher_->publish<tier4_debug_msgs::msg::Float64Stamped>(
@@ -410,7 +429,6 @@ void FusionNode<Msg, Obj>::timer_callback()
           processing_time_ms + stop_watch_ptr_->toc("processing_time", true));
         processing_time_ms = 0;
       }
-      */
     }
     std::fill(is_fused_.begin(), is_fused_.end(), false);
     sub_std_pair_.second = nullptr;
@@ -426,7 +444,9 @@ void FusionNode<Msg, Obj>::timer_callback()
     timer_->reset();
   }
 }
+*/
 
+/*
 template <class Msg, class Obj>
 void FusionNode<Msg, Obj>::setPeriod(const int64_t new_period)
 {
@@ -443,6 +463,7 @@ void FusionNode<Msg, Obj>::setPeriod(const int64_t new_period)
     rclcpp::exceptions::throw_from_rcl_error(ret, "Couldn't exchange_period");
   }
 }
+*/
 
 template <class Msg, class Obj>
 void FusionNode<Msg, Obj>::publish(const Msg & output_msg)

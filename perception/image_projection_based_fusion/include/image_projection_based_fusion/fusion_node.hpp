@@ -91,8 +91,10 @@ protected:
 
   virtual void publish(const Msg & output_msg);
 
+  /*
   void timer_callback();
   void setPeriod(const int64_t new_period);
+  */
 
   std::size_t rois_number_{1};
   tf2_ros::Buffer tf_buffer_;
@@ -102,7 +104,7 @@ protected:
   std::map<std::size_t, sensor_msgs::msg::CameraInfo> camera_info_map_;
   std::vector<rclcpp::Subscription<sensor_msgs::msg::CameraInfo>::SharedPtr> camera_info_subs_;
 
-  rclcpp::TimerBase::SharedPtr timer_;
+  // rclcpp::TimerBase::SharedPtr timer_;
   double timeout_ms_{};
   double match_threshold_ms_{};
   std::vector<std::string> input_rois_topics_;
@@ -117,8 +119,10 @@ protected:
   std::vector<double> input_offset_ms_;
 
   // cache for fusion
+  /*
   std::vector<bool> is_fused_;
   std::pair<int64_t, typename Msg::SharedPtr> sub_std_pair_;
+  */
   std::vector<std::map<int64_t, DetectedObjectsWithFeature::ConstSharedPtr>> roi_stdmap_;
   std::mutex mutex_;
 
