@@ -25,9 +25,10 @@ endif()
 find_package(PCL REQUIRED COMPONENTS common io registration)
 include_directories(${PCL_INCLUDE_DIRS})
 
-ament_auto_add_executable(ndt_scan_matcher
+find_package(rclcpp_components REQUIRED)
+
+ament_auto_add_library(ndt_scan_matcher SHARED
   src/debug.cpp
-  src/ndt_scan_matcher_node.cpp
   src/ndt_scan_matcher_core.cpp
   src/util_func.cpp
   src/pose_array_interpolator.cpp
@@ -35,6 +36,10 @@ ament_auto_add_executable(ndt_scan_matcher
   src/map_module.cpp
   src/map_update_module.cpp
 )
+
+rclcpp_components_register_nodes(ndt_scan_matcher "NDTScanMatcher")
+
+ament_target_dependencies(ndt_scan_matcher rclcpp_component_container_callback_isolated rclcpp_components)
 
 link_directories(${PCL_LIBRARY_DIRS})
 target_link_libraries(ndt_scan_matcher ${PCL_LIBRARIES})
