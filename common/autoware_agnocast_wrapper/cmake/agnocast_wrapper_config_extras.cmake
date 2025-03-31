@@ -1,0 +1,8 @@
+function(autoware_agnocast_wrapper_setup target)
+  if(DEFINED ENV{ENABLE_AGNOCAST} AND "$ENV{ENABLE_AGNOCAST}" STREQUAL "1")
+    message(WARNING "autoware_agnocast_wrapper_setup: Defining USE_AGNOCAST_ENABLED for target ${target}")
+    target_compile_definitions(${target} PUBLIC USE_AGNOCAST_ENABLED)
+  else()
+    message(WARNING "autoware_agnocast_wrapper_setup: Not defining USE_AGNOCAST_ENABLED for target ${target}")
+  endif()
+endfunction()
