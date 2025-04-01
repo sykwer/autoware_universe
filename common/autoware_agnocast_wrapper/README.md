@@ -29,6 +29,7 @@ void onPointCloud(const AUTOWARE_MESSAGE_PTR(const PointCloud2) input_msg) {
 ```
 
 To use the macros provided by this package in your own package, include the following lines in your `CMakeLists.txt`:
+
 ```cmake
 find_package(autoware_agnocast_wrapper REQUIRED)
 ament_target_dependencies(target autoware_agnocast_wrapper)
