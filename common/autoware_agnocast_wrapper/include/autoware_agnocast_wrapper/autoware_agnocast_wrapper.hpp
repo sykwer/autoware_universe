@@ -28,7 +28,7 @@
   agnocast::create_subscription<message_type>(this, topic, qos, callback, options)
 #define AUTOWARE_CREATE_PUBLISHER2(message_type, arg1, arg2) \
   agnocast::create_publisher<message_type>(this, arg1, arg2)
-#define AUTOWARE_CREATE_PUBLISHER(message_type, arg1, arg2, arg3) \
+#define AUTOWARE_CREATE_PUBLISHER3(message_type, arg1, arg2, arg3) \
   agnocast::create_publisher<message_type>(this, arg1, arg2, arg3)
 
 #define AUTOWARE_SUBSCRIPTION_OPTIONS agnocast::SubscriptionOptions
@@ -54,7 +54,7 @@
   this->create_subscription<message_type>(topic, qos, callback, options)
 #define AUTOWARE_CREATE_PUBLISHER2(message_type, arg1, arg2) \
   this->create_publisher<message_type>(arg1, arg2)
-#define AUTOWARE_CREATE_PUBLISHER(message_type, arg1, arg2, arg3) \
+#define AUTOWARE_CREATE_PUBLISHER3(message_type, arg1, arg2, arg3) \
   this->create_publisher<message_type>(arg1, arg2, arg3)
 
 #define AUTOWARE_SUBSCRIPTION_OPTIONS rclcpp::SubscriptionOptions
