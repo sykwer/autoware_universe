@@ -39,6 +39,7 @@
 #else
 
 #include "autoware/universe_utils/ros/polling_subscriber.hpp"
+
 #include <rclcpp/rclcpp.hpp>
 
 #include <memory>
