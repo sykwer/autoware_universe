@@ -12,7 +12,7 @@ This package provides macros that wrap functions for publish/subscribe operation
 You can immediately understand how to use the macros just by looking at `autoware_agnocast_wrapper.hpp`. A typical callback and publisher setup looks like this:
 
 ```cpp
-#include <autoware_agnocast_wrapper/autoware_agnocast_wrapper.hpp>
+#include <autoware/agnocast_wrapper/autoware_agnocast_wrapper.hpp>
 
 pub_output_ = AUTOWARE_CREATE_PUBLISHER3(
   PointCloud2,
