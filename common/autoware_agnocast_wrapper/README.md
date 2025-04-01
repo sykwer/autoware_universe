@@ -11,7 +11,7 @@ You can immediately understand how to use the macros just by looking at `autowar
 ```cpp
 #include <autoware_agnocast_wrapper/autoware_agnocast_wrapper.hpp>
 
-pub_output_ = AUTOWARE_CREATE_PUBLISHER(
+pub_output_ = AUTOWARE_CREATE_PUBLISHER3(
   PointCloud2,
   "output",
   rclcpp::SensorDataQoS().keep_last(max_queue_size_),
