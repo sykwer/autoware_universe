@@ -16,7 +16,7 @@
 
 #ifdef USE_AGNOCAST_ENABLED
 
-#include "agnocast/agnocast.hpp"
+#include <agnocast/agnocast.hpp>
 
 #define AUTOWARE_MESSAGE_PTR(MessageT) agnocast::ipc_shared_ptr<MessageT>
 #define AUTOWARE_SUBSCRIPTION_PTR(MessageT) typename agnocast::Subscription<MessageT>::SharedPtr
