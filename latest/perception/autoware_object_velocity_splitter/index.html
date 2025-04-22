@@ -9702,6 +9702,8 @@
         
           
         
+          
+        
       
       
         <label class="md-nav__link" for="__nav_9_1_2" id="__nav_9_1_2_label" tabindex="0">
@@ -9715,6 +9717,20 @@
           Docs
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sensing/autoware_cuda_pointcloud_preprocessor/docs/cuda-concatenate-data/" class="md-nav__link">
+        cuda_concatenate_and_time_synchronize_node
+      </a>
+    </li>
+  
+
+            
           
             
               
@@ -14254,13 +14270,26 @@ This package can split DetectedObjects into two messages by object's speed.</p>
 </li>
 </ul>
 <h3 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">#</a></h3>
-<ul>
-<li><code>velocity_threshold</code> (double) [m/s]<ul>
-<li>Default parameter is 3.0</li>
-</ul>
-</li>
-</ul>
-<p>This parameter is velocity threshold to split objects</p></div>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+<th>Range</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>velocity_threshold</td>
+<td>float</td>
+<td>Velocity threshold (in m/s) used to split objects.</td>
+<td>3</td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table></div>
 
 
 
